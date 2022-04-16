@@ -53,9 +53,6 @@ RUN Set-ExecutionPolicy Unrestricted ;  \
 
 ENV PATH "C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Python;C:\Python\Scripts;C:\ProgramData\chocolatey\bin;C:\Users"\\${NORMAL_USER}"\scoop\shims;C:\Program Files\PowerShell\7"
 
-#Use Powershell Core instead of 5
-SHELL ["pwsh", "-Command"]
-
 RUN choco install -y \
     python3 --params "/InstallDir:C:\Python" ; \
     pip3 install wheel \
@@ -74,5 +71,9 @@ RUN scoop install terraform packer ; \
     terraform-compliance \
     checkov \
     black
+
+#Use Powershell Core instead of 5
+SHELL ["pwsh", "-Command"]
+
 
 CMD C:/azp/start.ps1

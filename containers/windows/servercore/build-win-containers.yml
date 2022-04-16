@@ -10,11 +10,16 @@ trigger:
       - bug*
       - feature*
       - main/containers/linux*
-      - main/containers/windows/Dockerfile
-      - main/containers/windows/build-win-agents.yml
-      - main/containers/windows/*.ps1
       - main/.azurepipelines/*
       - README.md
+
+schedules:
+- cron: 0 19 * * 0
+  displayName: "Weekly Build"
+  branches:
+    include: [ main ]
+    exclude: [ develop ]
+  always: true
 
 parameters:
 
