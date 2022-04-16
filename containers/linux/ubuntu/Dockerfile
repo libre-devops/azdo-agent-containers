@@ -88,16 +88,6 @@ apt-get -y upgrade && \
 apt-get -y install container-tools && \
 apt-get install -y crun podman  fuse-overlayfs
 
-# Hack powershell install
-RUN  echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/powershell.gpg] \
-https://packages.microsoft.com/ubuntu/20.04/prod focal main" \
-| tee /etc/apt/sources.list.d/powershell.list && \
-curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /usr/share/keyrings/powershell.gpg >/dev/null && \
-apt-get update && \
-wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
-dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
-apt-get install powershell -y
-
 RUN terraformLatestVersion=$(curl -sL https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url' | egrep -v 'rc|beta|alpha' | egrep 'linux.*amd64'  | tail -1) && \
     wget "${terraformLatestVersion}" && \
     unzip terraform* && rm -rf terraform*.zip && \
