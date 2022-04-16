@@ -1,0 +1,109 @@
+---
+parameters:
+
+  - name: USERNAME
+    displayName: "Username to be passed for registry login"
+    type: string
+
+  - name: PASSWORD
+    displayName: "Password or access token for registry login"
+    type: string
+
+  - name: CONTEXT
+    displayName: "The the path to your dockerfile"
+    type: string
+
+  - name: DOCKERFILE_NAME
+    displayName: "The name of the Dockerfile"
+    default: "Dockerfile"
+    type: string
+
+  - name: NORMAL_USER
+    displayName: "The name for the container user"
+    default: "ContainerAdministrator"
+    type: string
+
+  - name: PYTHON3_VERSION
+    displayName: "The version of python to be installed by get.scoop.sh"
+    type: string
+    default: "@latest"
+
+  - name: AZP_URL
+    displayName: "The URL of your Azure DevOps instance, e.g. https://dev.azure.com/example"
+    type: string
+
+  - name: AZP_TOKEN
+    displayName: "The PAT token for your Agent to access Azure DevOps"
+    type: string
+
+  - name: AZP_AGENT_NAME
+    displayName: "The name for your agent"
+    default: $(Get-Random)
+    type: string
+
+  - name: AZP_POOL
+    displayName: "The pool for your agent to join"
+    type: string
+
+  - name: AZP_WORK
+    displayName: "The default working directory for your agent"
+    default: "_work"
+    type: string
+
+  - name: REGISTRY
+    displayName: "The target registry"
+    default: "ghcr.io"
+    type: string
+
+  - name: IMAGE_NAME
+    displayName: "The name of the image"
+    type: string
+
+  - name: TAGS
+    displayName: "The tag of the image"
+    default: ":latest"
+    type: string
+
+  - name: HOSTED_AGENT_IMAGE
+    displayName: "The name of the vmImage for Azure Hosted Pools"
+    default: "windows-2022"
+    type: string
+
+################## DO NOT EDIT ANYTHING PAST HERE UNLESS YOU KNOW WHAT YOU ARE DOING ##################
+
+jobs:
+  - job: build_container
+    pool:
+      vmImage: ${{ parameters.HOSTED_AGENT_IMAGE }}
+    workspace:
+      clean: all
+    displayName: Build Image - ${{ parameters.IMAGE_NAME }}${{ parameters.COUNT }}-${{ parameters.AGENT_AMOUNT }}${{ parameters.TAGS }}
+    timeoutInMinutes: 120
+
+    steps:
+
+      - checkout: self
+
+      - pwsh: |
+          
+          docker login -u ${{ parameters.USERNAME }} -p ${{ parameters.PASSWORD }} ${{ parameters.REGISTRY }} ; `
+          
+          docker build `
+          --file=${{ parameters.DOCKERFILE_NAME }} `
+          --tag="${{ parameters.REGISTRY }}/${{ parameters.USERNAME }}/${{ parameters.IMAGE_NAME }}$${{ parameters.TAGS }}" `
+          --build-arg ACCEPT_EULA=y `
+          --build-arg NORMAL_USER=${{ parameters.NORMAL_USER }} `
+          --build-arg PYTHON3_VERSION=${{ parameters.PYTHON3_VERSION }} `
+          --build-arg AZP_URL=${{ parameters.AZP_URL }} `
+          --build-arg AZP_TOKEN=${{ parameters.AZP_TOKEN }} `
+          --build-arg AZP_AGENT_NAME=${{ parameters.AZP_AGENT_NAME }} `
+          --build-arg AZP_POOL=${{ parameters.AZP_POOL }} `
+          --build-arg AZP_WORK=${{ parameters.AZP_WORK }} `
+          . ; `
+  
+          docker push "${{ parameters.REGISTRY }}/${{ parameters.USERNAME }}/${{ parameters.IMAGE_NAME }}${{ parameters.TAGS }}"
+        
+          
+          docker logout ${{ parameters.REGISTRY }}
+        displayName: Run Docker Login, Build and Logout
+        workingDirectory: ${{ parameters.CONTEXT }}

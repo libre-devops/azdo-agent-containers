@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+
+  agent-1:
+    build: ./Agent.Dockerfile
+    image: "ghcr.io/craigthackerx/azure-devops-agent-winseverltsc2022-agent-1:latest"
+    container_name: "agent-1"
+    restart: unless-stopped
+    labels:
+      - "io.containers.autoupdate=registry"
+      - "io.containers.autoupdate.authfile=${XDG_RUNTIME_DIR}/containers/auth.json"
+
+  agent-2:
+    build: ./Agent.Dockerfile
+    image: "ghcr.io/craigthackerx/azure-devops-agent-winseverltsc2022-agent-1:latest"
+    container_name: "agent-2"
+    restart: unless-stopped
+    labels:
+      - "io.containers.autoupdate=registry"
+      - "io.containers.autoupdate.authfile=${XDG_RUNTIME_DIR}/containers/auth.json"
+
+  agent-3:
+    build: ./Agent.Dockerfile
+    image: "ghcr.io/craigthackerx/azure-devops-agent-winseverltsc2022-agent-1:latest"
+    container_name: "agent-3"
+    restart: unless-stopped
+    labels:
+      - "io.containers.autoupdate=registry"
+      - "io.containers.autoupdate.authfile=${XDG_RUNTIME_DIR}/containers/auth.json"

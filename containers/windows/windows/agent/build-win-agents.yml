@@ -1,0 +1,133 @@
+---
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
+
+trigger: none
+
+parameters:
+
+  - name: AGENT_AMOUNT
+    displayName: "The amount of agents you require"
+    default: "2"
+    type: string
+
+  - name: CONTEXT
+    displayName: "The the path to your dockerfile"
+    default: "devops-agents/windows/windows/agent"
+    type: string
+
+  - name: DOCKERFILE_NAME
+    displayName: "The name of the Dockerfile"
+    default: "Agent.Dockerfile"
+    type: string
+    values:
+      - "Dockerfile"
+      - "Containerfile"
+      - "Base.Dockerfile"
+      - "Agent.Dockerfile"
+
+  - name: NORMAL_USER
+    displayName: "The name for the container user, for Windows, can only be ContainerAdministrator or ContainerUser"
+    default: "ContainerAdministrator"
+    type: string
+
+  - name: REGISTRY
+    displayName: "The target registry"
+    default: "ghcr.io"
+    type: string
+    values:
+      - "ghcr.io"
+      - "docker.io"
+      - "quay.io"
+      - "registry.redhat.com"
+      - "azurecr.io"
+
+  - name: IMAGE_NAME
+    displayName: "The name of the image"
+    default: "azure-devops-agent-winseverltsc2022-agent-"
+    type: string
+
+  - name: TAGS
+    displayName: "The tag of the image"
+    default: ":latest"
+    type: string
+
+  - name: HOSTED_AGENT_IMAGE
+    displayName: "The name of the vmImage"
+    default: "windows-2022"
+    type: string
+
+  - name: SECRETS_VARIABLE_GROUP
+    displayName: "The name of the variable group holding the secrets"
+    default: "DOCKER_SECRETS"
+    type: string
+
+  - name: USERNAME
+    displayName: "Username to be passed for registry login"
+    default: $(USERNAME)
+    type: string
+
+  - name: PASSWORD
+    displayName: "Password or access token for registry login"
+    default: $(PASSWORD)
+    type: string
+
+  - name: AZP_SECRETS_VARIABLE_GROUP
+    displayName: "The name of the variable group holding the secrets"
+    default: "WINDOWS_AZURE_DEVOPS_SECRETS"
+    type: string
+
+  - name: AZP_URL
+    displayName: "The URL of your Azure DevOps instance, e.g. https://dev.azure.com/example, you should use a secret variable"
+    type: string
+    default: $(AZP_URL)
+
+  - name: AZP_TOKEN
+    displayName: "The PAT token for your Agent to access Azure DevOps, you should use a secret variable"
+    default: $(AZP_TOKEN)
+    type: string
+
+  - name: AZP_AGENT_NAME
+    displayName: "The name for your agent, auto-generated"
+    default: $(Get-Random)
+    type: string
+
+  - name: AZP_POOL
+    displayName: "The pool for your agent to join, you should use a secret variable"
+    default: $(AZP_POOL)
+    type: string
+
+  - name: AZP_WORK
+    displayName: "The default working directory for your agent"
+    default: "_work"
+    type: string
+
+  - name: TEMPLATE_PATH
+    displayName: "The name of the variable group holding the secrets"
+    type: string
+    default: "../../../../azure-pipelines/templates/windows/build-agent.yml"
+
+  - name: COUNT
+    default: "1"
+    displayName: "The amount that the count should start at"
+    type: string
+
+variables:
+  - group: "DOCKER_SECRETS"
+  - group: "WINDOWS_AZURE_DEVOPS_SECRETS"
+
+jobs:
+  - template: ${{ parameters.TEMPLATE_PATH }}
+    parameters:
+      AGENT_AMOUNT: ${{ parameters.AGENT_AMOUNT }}
+      USERNAME: ${{ parameters.USERNAME }}
+      PASSWORD: ${{ parameters.PASSWORD }}
+      CONTEXT: ${{ parameters.CONTEXT }}
+      DOCKERFILE_NAME: ${{ parameters.DOCKERFILE_NAME }}
+      REGISTRY: ${{ parameters.REGISTRY }}
+      IMAGE_NAME: ${{ parameters.IMAGE_NAME }}
+      TAGS: ${{ parameters.TAGS }}
+      AZP_URL: ${{ parameters.AZP_URL }}
+      AZP_TOKEN: ${{ parameters.AZP_TOKEN }}
+      AZP_POOL: ${{ parameters.AZP_POOL }}
+      AZP_AGENT_NAME: ${{ parameters.AZP_AGENT_NAME }}
+      AZP_WORK: ${{ parameters.AZP_WORK }}
