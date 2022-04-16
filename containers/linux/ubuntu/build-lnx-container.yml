@@ -1,99 +1,104 @@
 ---
 name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
-trigger: none
+trigger:
+  branches:
+    include:
+    - main/containers/linux/ubuntu/*
+    exclude:
+      - develop
+      - bug*
+      - feature*
+      - main/containers/linux/rhel*
+      - main/containers/windows*
+      - main/.azurepipelines/*
+      - README.md
 
 parameters:
 
-  - name: AGENT_AMOUNT
-    displayName: "The amount of agents you require"
-    default: "2"
-    type: string
-
   - name: CONTEXT
     displayName: "The the path to your dockerfile"
-    default: "devops-agents/windows/servercore/agent"
+    default: "containers/linux/rhel"
     type: string
 
   - name: DOCKERFILE_NAME
     displayName: "The name of the Dockerfile"
-    default: "Agent.Dockerfile"
-    type: string
-    values:
-      - "Dockerfile"
-      - "Containerfile"
-      - "Base.Dockerfile"
-      - "Agent.Dockerfile"
-
-  - name: NORMAL_USER
-    displayName: "The name for the container user, for Windows, can only be ContainerAdministrator or ContainerUser"
-    default: "ContainerAdministrator"
+    default: "Dockerfile"
     type: string
 
   - name: REGISTRY
     displayName: "The target registry"
     default: "ghcr.io"
     type: string
-    values:
-      - "ghcr.io"
-      - "docker.io"
-      - "quay.io"
-      - "registry.redhat.com"
-      - "azurecr.io"
 
   - name: IMAGE_NAME
     displayName: "The name of the image"
-    default: "azure-devops-agent-winseverltsc2022-agent-"
+    default: "azdo-agent-rhel"
     type: string
 
   - name: TAGS
     displayName: "The tag of the image"
-    default: ":latest"
     type: string
+    default: ":latest"
 
   - name: HOSTED_AGENT_IMAGE
     displayName: "The name of the vmImage"
-    default: "windows-2022"
+    default: "ubuntu-latest"
+    type: string
+
+  - name: PYTHON3_VERSION
+    displayName: "The version of python to be installed by from source"
+    type: string
+    default: "3.10.1"
+
+  - name: GO_VERSION
+    displayName: "The version of Go to be installed"
+    type: string
+    default: "1.17.6"
+
+  - name: JAVA_VERSION
+    displayName: "The version of java to be installed"
+    type: string
+    default: "17"
+
+  - name: DOTNET_VERSION
+    displayName: "The version of Dotnet to be installed"
+    default: "6.0"
     type: string
 
   - name: SECRETS_VARIABLE_GROUP
     displayName: "The name of the variable group holding the secrets"
-    default: "DOCKER_SECRETS"
+    default: "LBDO_DOCKER_SECRETS"
     type: string
 
   - name: USERNAME
-    displayName: "Username to be passed for registry login"
+    displayName: "Username to be passed for registry login, should reference a secret"
     default: $(USERNAME)
     type: string
 
   - name: PASSWORD
-    displayName: "Password or access token for registry login"
+    displayName: "Password or access token for registry login, remember to store this in a keyvault or encrypted variable"
     default: $(PASSWORD)
     type: string
-
+    
   - name: AZP_SECRETS_VARIABLE_GROUP
     displayName: "The name of the variable group holding the secrets"
-    default: "WINDOWS_AZURE_DEVOPS_SECRETS"
+    default: "LINUX_AZURE_DEVOPS_SECRETS"
     type: string
 
   - name: AZP_URL
     displayName: "The URL of your Azure DevOps instance, e.g. https://dev.azure.com/example, you should use a secret variable"
     type: string
-    default: $(AZP_URL)
+    default: https://dev.azure.com
 
   - name: AZP_TOKEN
     displayName: "The PAT token for your Agent to access Azure DevOps, you should use a secret variable"
-    default: $(AZP_TOKEN)
-    type: string
-
-  - name: AZP_AGENT_NAME
-    displayName: "The name for your agent, auto-generated"
-    default: $(Get-Random)
+    default: Exampletoken
     type: string
 
   - name: AZP_POOL
     displayName: "The pool for your agent to join, you should use a secret variable"
-    default: $(AZP_POOL)
+    default: examplepool
     type: string
 
   - name: AZP_WORK
@@ -102,32 +107,30 @@ parameters:
     type: string
 
   - name: TEMPLATE_PATH
-    displayName: "The name of the variable group holding the secrets"
-    type: string
-    default: "../../../../azure-pipelines/templates/windows/build-agent.yml"
-
-  - name: COUNT
-    default: "1"
-    displayName: "The amount that the count should start at"
+    displayName: "The path of the template"
+    default: "../../../.azurepipelines/.templates/linux/build-linux-container-template.yml"
+    
     type: string
 
 variables:
-  - group: "DOCKER_SECRETS"
-  - group: "WINDOWS_AZURE_DEVOPS_SECRETS"
+  - group: ${{ parameters.SECRETS_VARIABLE_GROUP }}
+  - group: ${{ parameters.AZP_SECRETS_VARIABLE_GROUP }}
 
 jobs:
   - template: ${{ parameters.TEMPLATE_PATH }}
     parameters:
-      AGENT_AMOUNT: ${{ parameters.AGENT_AMOUNT }}
       USERNAME: ${{ parameters.USERNAME }}
       PASSWORD: ${{ parameters.PASSWORD }}
       CONTEXT: ${{ parameters.CONTEXT }}
       DOCKERFILE_NAME: ${{ parameters.DOCKERFILE_NAME }}
       REGISTRY: ${{ parameters.REGISTRY }}
+      PYTHON3_VERSION: ${{ parameters.PYTHON3_VERSION }}
+      DOTNET_VERSION: ${{ parameters.DOTNET_VERSION }}
+      GO_VERSION: ${{ parameters.GO_VERSION }}
+      JAVA_VERSION: ${{ parameters.JAVA_VERSION }}
       IMAGE_NAME: ${{ parameters.IMAGE_NAME }}
       TAGS: ${{ parameters.TAGS }}
       AZP_URL: ${{ parameters.AZP_URL }}
       AZP_TOKEN: ${{ parameters.AZP_TOKEN }}
       AZP_POOL: ${{ parameters.AZP_POOL }}
-      AZP_AGENT_NAME: ${{ parameters.AZP_AGENT_NAME }}
       AZP_WORK: ${{ parameters.AZP_WORK }}

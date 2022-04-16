@@ -1,9 +1,8 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2022-amd64
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-# e
 # escape = `
 
-LABEL org.opencontainers.image.source=https://github.com/craigthackerx/azure-devops-agent-containers
+LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
 COPY tls-fix.ps1 /tls-fix.ps1
 
@@ -18,17 +17,14 @@ ENV ACCEPT_EULA ${ACCEPT_EULA}
 #Set args with blank values - these will be over-written with the CLI
 ARG AZP_URL=https://dev.azure.com/Example
 ARG AZP_TOKEN=ExamplePatToken
-ARG AZP_AGENT_NAME=Example
 ARG AZP_POOL=PoolName
 ARG AZP_WORK=_work
 
 #Set the environment with the CLI-passed arguements
 ENV AZP_URL ${AZP_URL}
 ENV AZP_TOKEN ${AZP_TOKEN}
-ENV AZP_AGENT_NAME ${AZP_AGENT_NAME}
 ENV AZP_POOL ${AZP_POOL}
 ENV AZP_WORK ${AZP_WORK}
-
 
 #Use Powershell instead of CMD
 SHELL ["powershell", "-Command"]

@@ -4,11 +4,15 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 trigger:
   branches:
     include:
-    - main
+    - main/containers/linux/rhel/*
     exclude:
       - develop
       - bug*
       - feature*
+      - main/containers/linux/ubuntu*
+      - main/containers/windows*
+      - main/.azurepipelines/*
+      - README.md
 
 parameters:
 
