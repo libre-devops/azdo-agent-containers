@@ -2,8 +2,6 @@
 
 set -e
 
-source "${HOME}"/.bashrc
-
 print_header() {
   lightcyan='\033[1;36m'
   nocolor='\033[0m'
