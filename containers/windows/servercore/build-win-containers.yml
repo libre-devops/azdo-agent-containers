@@ -20,7 +20,7 @@ parameters:
 
   - name: CONTEXT
     displayName: "The the path to your dockerfile"
-    default: "containers/windows/servercore/2019"
+    default: "containers/windows/servercore"
     type: string
 
   - name: DOCKERFILE_NAME
@@ -43,6 +43,11 @@ parameters:
     default: "azdo-agent-winsevercoreltsc2022"
     type: string
 
+  - name: PYTHON3_VERSION
+    displayName: "The python3 version scoop is expected to install"
+    default: "@latest"
+    type: string
+
   - name: TAGS
     displayName: "The tag of the image"
     default: ":latest"
@@ -51,11 +56,6 @@ parameters:
   - name: HOSTED_AGENT_IMAGE
     displayName: "The name of the vmImage"
     default: "windows-2022"
-    type: string
-
-  - name: PYTHON3_VERSION
-    displayName: "The python3 version scoop is expected to install"
-    default: "@latest"
     type: string
 
   - name: SECRETS_VARIABLE_GROUP
@@ -105,6 +105,7 @@ parameters:
 
 variables:
   - group: ${{ parameters.SECRETS_VARIABLE_GROUP }}
+  - group: ${{ parameters.AZP_SECRETS_VARIABLE_GROUP }}
 
 jobs:
   - template: ${{ parameters.TEMPLATE_PATH }}

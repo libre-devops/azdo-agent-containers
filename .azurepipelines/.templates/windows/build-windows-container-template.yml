@@ -80,6 +80,7 @@ jobs:
       - checkout: self
 
       - pwsh: |
+          
           Set-StrictMode -Version 2
           docker login -u ${{ parameters.USERNAME }} -p ${{ parameters.PASSWORD }} ${{ parameters.REGISTRY }} ; `
           

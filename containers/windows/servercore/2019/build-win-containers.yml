@@ -105,6 +105,7 @@ parameters:
 
 variables:
   - group: ${{ parameters.SECRETS_VARIABLE_GROUP }}
+  - group: ${{ parameters.AZP_SECRETS_VARIABLE_GROUP }}
 
 jobs:
   - template: ${{ parameters.TEMPLATE_PATH }}
