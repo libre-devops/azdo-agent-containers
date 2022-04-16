@@ -20,7 +20,7 @@ parameters:
 
   - name: CONTEXT
     displayName: "The the path to your dockerfile"
-    default: "containers/windows/servercore"
+    default: "containers/windows/servercore/2019"
     type: string
 
   - name: DOCKERFILE_NAME
@@ -101,7 +101,7 @@ parameters:
   - name: TEMPLATE_PATH
     displayName: "The name of the variable group holding the secrets"
     type: string
-    default: "../../../../.azurepipelines/.templates/windows/build-windows-container-template.yml"
+    default: "../../../.azurepipelines/.templates/windows/build-windows-container-template.yml"
 
 variables:
   - group: ${{ parameters.SECRETS_VARIABLE_GROUP }}
