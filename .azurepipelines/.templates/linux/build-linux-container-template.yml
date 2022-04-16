@@ -119,5 +119,5 @@ jobs:
           podman push "${{ parameters.REGISTRY }}/${{ parameters.USERNAME }}/${{ parameters.IMAGE_NAME }}${{ parameters.TAGS }}"
           
           podman logout ${{ parameters.REGISTRY }}
-        displayName: Run Podman Login, Build x${{ parameters.AGENT_AMOUNT }}, Push x${{ parameters.AGENT_AMOUNT }} and Logout
+        displayName: Run Podman Login, Build, Push and Logout
         workingDirectory: ${{ parameters.CONTEXT }}
