@@ -103,7 +103,7 @@ parameters:
     type: string
 
   - name: TEMPLATE_PATH
-    displayName: "The name of the variable group holding the secrets"
+    displayName: "The path of the template"
     default: "../../../.azurepiplines/.templates/linux/build-linux-container-template.yml"
     type: string
 
