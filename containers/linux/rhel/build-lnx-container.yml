@@ -64,7 +64,7 @@ parameters:
 
   - name: SECRETS_VARIABLE_GROUP
     displayName: "The name of the variable group holding the secrets"
-    default: "DOCKER_SECRETS"
+    default: "LBDO_DOCKER_SECRETS"
     type: string
 
   - name: USERNAME
