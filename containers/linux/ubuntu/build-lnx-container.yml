@@ -33,7 +33,7 @@ parameters:
 
   - name: IMAGE_NAME
     displayName: "The name of the image"
-    default: "azdo-agent-rhel"
+    default: "azdo-agent-ubuntu"
     type: string
 
   - name: TAGS
