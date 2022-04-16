@@ -104,7 +104,7 @@ parameters:
 
   - name: TEMPLATE_PATH
     displayName: "The path of the template"
-    default: "../../../.azurepiplines/.templates/linux/build-linux-container-template.yml"
+    default: ".azurepiplines/.templates/linux/build-linux-container-template.yml"
     type: string
 
 variables:
