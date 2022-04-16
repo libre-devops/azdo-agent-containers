@@ -26,6 +26,8 @@ ENV AZP_TOKEN ${AZP_TOKEN}
 ENV AZP_POOL ${AZP_POOL}
 ENV AZP_WORK ${AZP_WORK}
 
+USER ${NORMAL_USER}
+
 #Use Powershell instead of CMD
 SHELL ["powershell", "-Command"]
 

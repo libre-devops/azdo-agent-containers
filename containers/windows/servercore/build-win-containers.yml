@@ -20,7 +20,7 @@ parameters:
 
   - name: CONTEXT
     displayName: "The the path to your dockerfile"
-    default: "containers/windows/servercore/2019"
+    default: "containers/windows/servercore"
     type: string
 
   - name: DOCKERFILE_NAME
