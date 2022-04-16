@@ -91,7 +91,7 @@ jobs:
       vmImage: ${{ parameters.HOSTED_AGENT_IMAGE }}
     workspace:
       clean: all
-    displayName: Build Image - ${{ parameters.IMAGE_NAME }}${{ parameters.COUNT }}-${{ parameters.AGENT_AMOUNT }}${{ parameters.TAGS }}
+    displayName: Build Image - ${{ parameters.IMAGE_NAME }}${{ parameters.TAGS }}
     timeoutInMinutes: 120
 
     steps:
@@ -113,12 +113,10 @@ jobs:
           --build-arg JAVA_VERSION="${{ parameters.JAVA_VERSION }}" \
           --build-arg AZP_URL="${{ parameters.AZP_URL }}" \
           --build-arg AZP_TOKEN="${{ parameters.AZP_TOKEN }}" \
-          --build-arg AZP_AGENT_NAME="${{ parameters.AZP_AGENT_NAME }}" \
           --build-arg AZP_POOL="${{ parameters.AZP_POOL }}" \
-          --build-arg AZP_WORK="${{ parameters.AZP_WORK }}"
-          podman push "${{ parameters.REGISTRY }}/${{ parameters.USERNAME }}/${{ parameters.IMAGE_NAME }}${{ parameters.TAGS }}"
+          --build-arg AZP_WORK="${{ parameters.AZP_WORK }}" && \
           
-          done
+          podman push "${{ parameters.REGISTRY }}/${{ parameters.USERNAME }}/${{ parameters.IMAGE_NAME }}${{ parameters.TAGS }}"
           
           podman logout ${{ parameters.REGISTRY }}
         displayName: Run Podman Login, Build x${{ parameters.AGENT_AMOUNT }}, Push x${{ parameters.AGENT_AMOUNT }} and Logout
