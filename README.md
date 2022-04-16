@@ -138,7 +138,48 @@ spec:
 status: {}
 ```
 
-Alteratnively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
+## Podman-in-Podman
+
+Looking to run Podman containers within a container?  The Linux containers in this repo support it!. To do this however, you do need to run the container in `--priviledged` mode.  You can still run it as a standard user.  Here is an example on how to run interactively
+
+```shell
+#!/usr/bin/env bash
+
+REPO="ghcr.io"
+
+USER="libre-devops"
+IMAGE_NAME="azdo-agent-rhel"
+TAGS=":latest"
+
+AZP_URL="https://dev.azure.com/example"
+AZP_TOKEN="example-pat-token"
+AZP_POOL="example-pool"
+AZP_WORK="_work"
+
+podman run -it --rm --privileged -u root \
+    -e AZP_URL="${AZP_URL}" \
+    -e AZP_TOKEN="${AZP_TOKEN}" \
+    -e AZP_POOL="${AZP_POOL}" \
+    -e AZP_WORK="${AZP_WORK}" \
+    "${REPO}/${USER}/${IMAGE_NAME}${TAGS} \
+    bash"
+```
+
+And then inside the container:
+```shell
+root@7483265642f0:/azp# podman run -it ubuntu:latest
+Resolved "ubuntu" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
+Trying to pull docker.io/library/ubuntu:latest...
+Getting image source signatures
+Copying blob e0b25ef51634 done
+Copying config 825d55fb63 done
+Writing manifest to image destination
+Storing signatures
+root@7483265642f0:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+```
+
+Alternatively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
 
 ## Info
 
@@ -148,7 +189,6 @@ Alteratnively, you can fork the repo and edit the pipelines to include your secr
      - Azure-CLI - Installed via global pip3
      - PowerShell 7 - With all Azure modules downloaded (these are around 2GB in size, which is why its part of the base)
      - The script which will execute on `CMD` in the container, which will fetch the latest Azure Pipelines agent on execution
-
   - On Windows:
     - Chocolatey and Scoop installed
     - Python - Latest version from chocolatey
