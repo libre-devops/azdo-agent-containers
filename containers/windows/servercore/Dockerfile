@@ -34,7 +34,7 @@ RUN powershell /tls-fix.ps1 ; Remove-Item -Force /tls-fix.ps1
 #Set Unrestricted Policy & Install chocolatey
 RUN Set-ExecutionPolicy Unrestricted ;  \
     Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')) ; \
-    Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | iex ; \
+    Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh -outfile 'install.ps1'; .\install.ps1 -RunAsAdmin; Remove-Item -force install.ps1 ; \
     choco install -y \
     powershell-core  \
     azure-cli ; \
