@@ -23,7 +23,7 @@ Our containers probably don't follow best practice as I am not really employing 
    - [Ubuntu 22.04 Jammy](https://hub.docker.com/_/ubuntu)
   
  - Windows Image used in the repo:
-   - [Windows Server 2022 LTSC](https://hub.docker.com/_/microsoft-windows-server/) 
+   - [Windows Server 2019/2022 LTSC](https://hub.docker.com/_/microsoft-windows-server/) 
 
 # Quickstart
 
@@ -55,6 +55,8 @@ docker run -it ghcr.io/libre-devops/azdo-agent-winservercoreltsc2022:latest \
 -e AZP_POOL="${AZP_POOL}" \
 -e AZP_WORK="${AZP_WORK}"
 ```
+
+Alteratnively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
 
 ## Info
 
