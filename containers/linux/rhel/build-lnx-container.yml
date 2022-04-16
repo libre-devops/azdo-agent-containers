@@ -61,7 +61,7 @@ parameters:
   - name: GO_VERSION
     displayName: "The version of Go to be installed"
     type: string
-    default: "1.17.6"
+    default: "1.18.1"
 
   - name: JAVA_VERSION
     displayName: "The version of java to be installed"
