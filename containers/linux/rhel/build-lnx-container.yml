@@ -104,7 +104,7 @@ parameters:
 
   - name: TEMPLATE_PATH
     displayName: "The name of the variable group holding the secrets"
-    default: "/.azurepiplines/.templates/linux/build-linux-container.yml"
+    default: "../../../.azurepiplines/.templates/linux/build-linux-container.yml"
     type: string
 
 variables:
@@ -114,7 +114,6 @@ variables:
 jobs:
   - template: ${{ parameters.TEMPLATE_PATH }}
     parameters:
-      AGENT_AMOUNT: ${{ parameters.AGENT_AMOUNT }}
       USERNAME: ${{ parameters.USERNAME }}
       PASSWORD: ${{ parameters.PASSWORD }}
       CONTEXT: ${{ parameters.CONTEXT }}
