@@ -138,7 +138,7 @@ ENV _CONTAINERS_USERNS_CONFIGURED=""
 #Prepare container for Azure DevOps script execution
 WORKDIR /azp
 COPY start.sh /azp/start.sh
-RUN setfacl -m u:${NORMAL_USER}:rwx start.sh
+RUN setfacl -m u:${NORMAL_USER}:rwx start.sh && chmod 755 start.sh
 CMD [ "./start.sh" ]
 
 #Install Azure Modules for Powershell - This can take a while, so setting as final step to shorten potential rebuilds
