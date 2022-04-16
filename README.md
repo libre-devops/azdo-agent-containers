@@ -20,7 +20,7 @@ Our containers probably don't follow best practice as I am not really employing 
 - Example scripts in Podman, CI/CD pipelines in Podman for Linux and Docker for Windows :whale:
 - Linux Images used in the repo:
    - [RedHat 8 Universal Basic Image ](https://catalog.redhat.com/software/container-stacks/detail/5ec53f50ef29fd35586d9a56)
-   - [Ubuntu 22.04 Jammy](https://hub.docker.com/_/ubuntu)
+   - [Ubuntu 20.04y](https://hub.docker.com/_/ubuntu)
   
  - Windows Image used in the repo:
    - [Windows Server 2019/2022 LTSC](https://hub.docker.com/_/microsoft-windows-server/) 

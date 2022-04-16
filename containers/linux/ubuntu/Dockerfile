@@ -1,5 +1,5 @@
 #Use supplier image
-FROM docker.io/ubuntu:jammy
+FROM docker.io/ubuntu:latest
 
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
@@ -74,7 +74,18 @@ RUN mkdir -p /azp && \
                 pip3 install ansible terraform-compliance pywinrm checkov pipenv virtualenv && \
                 mkdir -p /home/linuxbrew && \
                 chown -R ${NORMAL_USER}:${NORMAL_USER} /home/linuxbrew && \
-                az config set extension.use_dynamic_install=yes_without_prompt
+                az config set extension.use_dynamic_install=yes_without_prompt && \
+    wget -q https://packages.microsoft.com/config/ubuntu/$(grep -oP '(?<=^DISTRIB_RELEASE=).+' /etc/lsb-release | tr -d '"')/packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    apt-get update && \
+    apt-get install -y powershell
+
+RUN echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /" | tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list && \
+curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/Release.key" | apt-key add - && \
+apt-get update && \
+apt-get -y upgrade && \
+apt-get -y install container-tools && \
+apt-get install -y crun podman  fuse-overlayfs
 
 # Hack powershell install
 RUN  echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/powershell.gpg] \
@@ -85,7 +96,6 @@ apt-get update && \
 wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
 dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
 apt-get install powershell -y
-
 
 RUN terraformLatestVersion=$(curl -sL https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url' | egrep -v 'rc|beta|alpha' | egrep 'linux.*amd64'  | tail -1) && \
     wget "${terraformLatestVersion}" && \
@@ -109,12 +119,6 @@ RUN rm -rf /usr/local/go && \
 RUN curl -s "https://get.sdkman.io" | bash && \
     nvmLatest=$(curl --silent "https://api.github.com/repos/nvm-sh/nvm/releases/latest" | jq -r .tag_name) && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${nvmLatest}/install.sh | bash
-
-#Don't include container-selinux and remove
-#directories used by yum that are just taking
-#up space.
-RUN apt-get update && apt-get -y install container-tools && \
-apt-get install -y crun podman podman-docker fuse-overlayfs
 
 RUN useradd podman; \
 echo podman:10000:5000 > /etc/subuid; \
