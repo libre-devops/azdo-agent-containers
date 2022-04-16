@@ -37,13 +37,27 @@ docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
 -e AZP_WORK="${AZP_WORK}"
 ```
 
-Or using podman
+Or using podman in a startup script
 ```shell
-podman run -it ghcr.io/libre-devops/azdo-agent-ubuntu:latest \
--e AZP_URL="https://dev.azure.com/yourorg" \
--e AZP_TOKEN="aaabbbcccdddeeeeffffggg" \
--e AZP_POOL="mypool" \
--e AZP_WORK="_work"
+#!/usr/bin/env pwsh
+
+$REPO="ghcr.io"
+
+$USER="libre-devops"
+$IMAGE_NAME="azdo-agent-winsevercoreltsc2019"
+$TAGS = ":latest"
+
+$AZP_URL="https://dev.azure.com/example"
+$AZP_TOKEN="example-pat-token"
+$AZP_POOL="example-pool"
+$AZP_WORK="_work"
+
+docker run -it --rm `
+    -e AZP_URL="${AZP_URL}" `
+    -e AZP_TOKEN="${AZP_TOKEN}" `
+    -e AZP_POOL="${AZP_POOL}" `
+    -e AZP_WORK="${AZP_WORK}" `
+    "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
 ```
 
 
@@ -54,6 +68,30 @@ docker run -it ghcr.io/libre-devops/azdo-agent-winservercoreltsc2022:latest \
 -e AZP_TOKEN="${AZP_TOKEN}" \
 -e AZP_POOL="${AZP_POOL}" \
 -e AZP_WORK="${AZP_WORK}"
+```
+
+Startup script
+```powershell
+
+#!/usr/bin/env pwsh
+
+$REPO="ghcr.io"
+
+$USER="libre-devops"
+$IMAGE_NAME="azdo-agent-winsevercoreltsc2019"
+$TAGS = ":latest"
+
+$AZP_URL="https://dev.azure.com/example"
+$AZP_TOKEN="example-pat-token"
+$AZP_POOL="example-pool"
+$AZP_WORK="_work"
+
+docker run -it --rm `
+    -e AZP_URL="${AZP_URL}" `
+    -e AZP_TOKEN="${AZP_TOKEN}" `
+    -e AZP_POOL="${AZP_POOL}" `
+    -e AZP_WORK="${AZP_WORK}" `
+    "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
 ```
 
 Alteratnively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
