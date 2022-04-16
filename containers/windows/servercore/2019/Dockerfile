@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
 # escape = `
 
-LABEL org.opencontainers.image.source=https://github.com/craigthackerx/azure-devops-agent-containers
+LABEL org.opencontainers.image.source=https://github.com/libre-devops/azure-devops-agent-containers
 
 COPY tls-fix.ps1 /tls-fix.ps1
 
