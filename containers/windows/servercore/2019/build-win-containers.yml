@@ -48,7 +48,7 @@ parameters:
 
   - name: IMAGE_NAME
     displayName: "The name of the image"
-    default: "azdo-agent-winsevercoreltsc2019"
+    default: "azdo-agent-winservercoreltsc2019"
     type: string
 
   - name: PYTHON3_VERSION
