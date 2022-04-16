@@ -24,6 +24,10 @@ Our containers probably don't follow best practice as I am not really employing 
   
  - Windows Image used in the repo:
    - [Windows Server 2019/2022 LTSC](https://hub.docker.com/_/microsoft-windows-server/) 
+ 
+- Agent Name is auto-generated for pool to avoid conflicts, in format:
+   - Linux: `azdo-lnx-agent-${{ddmmyyy}-${random_chars}`
+   - Windows: `azdo-win-agent-${ddmmyyyy}-${RANDOM_NUMBERS}`
 
 # Quickstart
 
@@ -38,28 +42,28 @@ docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
 ```
 
 Or using podman in a startup script
+
 ```shell
-#!/usr/bin/env pwsh
+#!/usr/bin/env bash
 
-$REPO="ghcr.io"
+REPO="ghcr.io"
 
-$USER="libre-devops"
-$IMAGE_NAME="azdo-agent-winsevercoreltsc2019"
-$TAGS = ":latest"
+USER="libre-devops"
+IMAGE_NAME="azdo-agent-rhel"
+TAGS=":latest"
 
-$AZP_URL="https://dev.azure.com/example"
-$AZP_TOKEN="example-pat-token"
-$AZP_POOL="example-pool"
-$AZP_WORK="_work"
+AZP_URL="https://dev.azure.com/example"
+AZP_TOKEN="example-pat-token"
+AZP_POOL="example-pool"
+AZP_WORK="_work"
 
-docker run -it --rm `
-    -e AZP_URL="${AZP_URL}" `
-    -e AZP_TOKEN="${AZP_TOKEN}" `
-    -e AZP_POOL="${AZP_POOL}" `
-    -e AZP_WORK="${AZP_WORK}" `
+podman run -it \
+    -e AZP_URL="${AZP_URL}" \
+    -e AZP_TOKEN="${AZP_TOKEN}" \
+    -e AZP_POOL="${AZP_POOL}" \
+    -e AZP_WORK="${AZP_WORK}" \
     "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
 ```
-
 
 ## Windows
 ```powershell
@@ -104,7 +108,6 @@ Alteratnively, you can fork the repo and edit the pipelines to include your secr
      - Azure-CLI - Installed via global pip3
      - PowerShell 7 - With all Azure modules downloaded (these are around 2GB in size, which is why its part of the base)
      - The script which will execute on `CMD` in the container, which will fetch the latest Azure Pipelines agent on execution
-       - **NOTE: The script is not intended to be ran by the base, but the agent, as it requires various build arguments to execute and connect to Azure DevOps** 
 
   - On Windows:
     - Chocolatey and Scoop installed
@@ -113,9 +116,6 @@ Alteratnively, you can fork the repo and edit the pipelines to include your secr
     - Git - Latest from chocolatey (and will also install Bash)
     - 7-Zip
     - Scoop "extras" bucket
-      - **NOTE: The script is not intended to be ran by the base, but the agent, as it requires various build arguments to execute and connect to Azure DevOps**
-
-</br>
 
 Some others notes:
 
