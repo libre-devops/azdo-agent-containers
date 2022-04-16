@@ -49,7 +49,7 @@ podman run -it ghcr.io/libre-devops/azdo-agent-ubuntu:latest \
 
 ## Windows
 ```powershell
-docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
+docker run -it ghcr.io/libre-devops/azdo-agent-winservercoreltsc2022:latest \
 -e AZP_URL="${AZP_URL}" \
 -e AZP_TOKEN="${AZP_TOKEN}" \
 -e AZP_POOL="${AZP_POOL}" \
