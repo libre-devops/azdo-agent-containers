@@ -157,9 +157,7 @@ USER ${NORMAL_USER}
 RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${NORMAL_USER}/.bash_profile && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
-    source ~/.bash_profile && source ~/.bashrc && \
     curl -s "https://get.sdkman.io" | bash && \
-    source "$HOME/.sdkman/bin/sdkman-init.sh" && \
     az config set extension.use_dynamic_install=yes_without_prompt
 
 USER root
