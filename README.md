@@ -98,6 +98,46 @@ docker run -it --rm `
     "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
 ```
 
+## Kubernetes
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: 2022-04-16T11:00:00Z
+  name: azdo-agents-deployment
+  labels:
+    app: azdo-agents
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: azdo-agents
+  template:
+    metadata:
+      labels:
+        app: azdo-agents
+    spec:
+      containers:
+        - image: ghcr.io/libre-devops/azdo-agent-rhel:latest
+          name: agent
+          env:
+            - name: AZP_URL
+              value: "https://dev.azure.com/example"
+
+            - name: AZP_TOKEN
+              value: "example-pat-token"
+
+            - name: AZP_POOL
+              value: "example-pool"
+
+            - name: AZP_WORK
+              value: "_work"
+
+          resources: { }
+      restartPolicy: Always
+status: {}
+```
+
 Alteratnively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
 
 ## Info
