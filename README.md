@@ -27,13 +27,33 @@ My containers probably don't follow best practice as I am not really employing a
 
 # Quickstart
 
+## Linux
+
 ```shell
-docker run -it ghcr.io/libre-devops/azdo-agent-ubuntu:latest \
--e AZP_URL=${AZP_URL} \
--e AZP_TOKEN ${AZP_TOKEN} \
--e AZP_AGENT_NAME ${AZP_AGENT_NAME} \
--e AZP_POOL ${AZP_POOL} \
--e AZP_WORK ${AZP_WORK}  \
+docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
+-e AZP_URL="${AZP_URL}" \
+-e AZP_TOKEN="${AZP_TOKEN}" \
+-e AZP_POOL="${AZP_POOL}" \
+-e AZP_WORK="${AZP_WORK}"
+```
+
+Or using podman
+```shell
+podman run -it ghcr.io/libre-devops/azdo-agent-ubuntu:latest \
+-e AZP_URL="https://dev.azure.com/yourorg" \
+-e AZP_TOKEN="aaabbbcccdddeeeeffffggg" \
+-e AZP_POOL="mypool" \
+-e AZP_WORK="_work"
+```
+
+
+## Windows
+```powershell
+docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
+-e AZP_URL="${AZP_URL}" \
+-e AZP_TOKEN="${AZP_TOKEN}" \
+-e AZP_POOL="${AZP_POOL}" \
+-e AZP_WORK="${AZP_WORK}"
 ```
 
 ## Usage
