@@ -43,6 +43,11 @@ parameters:
     default: "azdo-agent-winsevercoreltsc2019"
     type: string
 
+  - name: PYTHON3_VERSION
+    displayName: "The python3 version scoop is expected to install"
+    default: "@latest"
+    type: string
+
   - name: TAGS
     displayName: "The tag of the image"
     default: ":latest"

@@ -53,6 +53,11 @@ parameters:
     default: "windows-2022"
     type: string
 
+  - name: PYTHON3_VERSION
+    displayName: "The python3 version scoop is expected to install"
+    default: "@latest"
+    type: string
+
   - name: SECRETS_VARIABLE_GROUP
     displayName: "The name of the variable group holding the secrets"
     default: "LBDO_DOCKER_SECRETS"
