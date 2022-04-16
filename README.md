@@ -10,7 +10,7 @@ There are several projects which attempt to do this, but never in a way that I "
 
 The only thing to note, these containers have no "real" inherit dependencies, in theory, passing `ENV` and/or `ARG`'s into your container with the `start.sh` and `start.ps1` scripts that I have based from the Microsoft documentation is enough to get going. But I will try to document what parts are what and why - and my containers are only an example, so check out the Usage section for more info.
 
-My containers probably don't follow best practice as I am not really employing any real shell-scripts tricks or layer optimization, but these work for me. Here is some high level.
+Our containers probably don't follow best practice as I am not really employing any real shell-scripts tricks or layer optimization, but these work for me. Here is some high level.
 
 ## High-level info
 
@@ -56,13 +56,7 @@ docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
 -e AZP_WORK="${AZP_WORK}"
 ```
 
-## Usage
-
-This repo has 2 main concepts:
-
-- The base image, which forms the overall base of all of your agents - this is a shared layer where updates and dependencies across all of your projects should sit - These agents may end up being used by more than one team, so try to keep the base as static as possible. So for my example, I am installing Python, for you it may be Java, or Go, or .NET or even more, but just remember, the Python is for what I am doing. In my example files, I am installing:
-
-</br>
+## Info
 
   - On Linux:
      - Various packages and updates needed.
@@ -85,12 +79,7 @@ This repo has 2 main concepts:
 
 Some others notes:
 
-There are more than just standard images, I do not own or give any explicit license agreements which may be contained with the software in these images, but have given images for examples and published them to allow experiments :scientist:.  The images are as follows:
+We do not own or give any explicit license agreements which may be contained with the software in these images, but have given images for examples and published them to allow experiments :scientist:.  The images are as follows:
 
-- Image - Standard Image with Python, PowerShell and Azure-CLI, examples in this repo: `debian`, `oracle8`, `rhel8`, `ubuntu`, `winseverltsc2022`
-- Image-Slim - Slim based image, e.g. with Python, Powershell and Azure-CLI, examples in this repo: `debian-slim`, `oracle8-slim`, `rhel8-slim`
-- Image-Lite - Normal images without Python, Powershell or Azure-CLI, examples in this repo: `debian-lite`, `oracle8-lite`, `rhel8-lite`, `ubuntu-lite`, `winseverltsc2022-lite`
-- Image-Slim-Lite - Slim image without Python, Powershell or Azure-CLI, examples in this repo: `debian-slim-lite`, `oracle8-slim-lite`, `rhel8-slim-lite`
-- Image-full - A full, monolithic image which is not part of the base/agent build type, where all resources are built into a single image, as well as having the ability to build Linux containers using podman when executed as root in [privileged mode](https://www.redhat.com/sysadmin/privileged-flag-container-engines) . Examples in this repo: `rhel8-full`.  It is not generally recommended to run this as your standard Agent, but only for specific jobs.  This image containers Python, DotNet, Go and Java in this repo to get across the point is supposed to be used for monolithic deployments and bypasses the general idea of purpose built containers
-
-- All images are tagged as latest and available in `ghcr.io/craigthackerx`
+- Image - Standard Image with Python, PowerShell and Azure-CLI, examples in this repo:  `rhel`, `ubuntu`, `winseverltsc2019`, `winseverltsc2022`
+- All images are tagged as latest and available in `ghcr.io/libre-devops`
