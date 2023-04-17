@@ -88,7 +88,7 @@ jobs:
           --file="${{ parameters.DOCKERFILE_NAME }}" \
           --tag="${{ parameters.REGISTRY }}/${{ parameters.USERNAME }}/${{ parameters.IMAGE_NAME }}${{ parameters.TAGS }}" \
           --build-arg NORMAL_USER="${{ parameters.NORMAL_USER }}"  \
-          --build-arg USER_PASSWORD=${{ parameters.USER_PASSWORD }} \
+          --build-arg USER_PASSWORD=${{ parameters.NORMAL_USER }} \
           --build-arg ACCEPT_EULA="y" \
           --build-arg AZP_URL="${{ parameters.AZP_URL }}" \
           --build-arg AZP_TOKEN="${{ parameters.AZP_TOKEN }}" \
