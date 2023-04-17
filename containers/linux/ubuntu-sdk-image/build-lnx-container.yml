@@ -4,7 +4,7 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 trigger:
   branches:
     include:
-    - main/containers/linux/rhel/*
+    - main/containers/linux/ubuntu/*
     exclude:
       - develop
       - bug*
@@ -25,7 +25,7 @@ parameters:
 
   - name: CONTEXT
     displayName: "The the path to your dockerfile"
-    default: "containers/linux/rhel"
+    default: "containers/linux/ubuntu-sdk-image"
     type: string
 
   - name: DOCKERFILE_NAME
@@ -40,7 +40,7 @@ parameters:
 
   - name: IMAGE_NAME
     displayName: "The name of the image"
-    default: "azdo-agent-rhel"
+    default: "azdo-agent-ubuntu-sdk-image"
     type: string
 
   - name: TAGS
@@ -51,26 +51,6 @@ parameters:
   - name: HOSTED_AGENT_IMAGE
     displayName: "The name of the vmImage"
     default: "ubuntu-latest"
-    type: string
-
-  - name: PYTHON3_VERSION
-    displayName: "The version of python to be installed by from source"
-    type: string
-    default: "3.10.1"
-
-  - name: GO_VERSION
-    displayName: "The version of Go to be installed"
-    type: string
-    default: "1.18.1"
-
-  - name: JAVA_VERSION
-    displayName: "The version of java to be installed"
-    type: string
-    default: "17"
-
-  - name: DOTNET_VERSION
-    displayName: "The version of Dotnet to be installed"
-    default: "6.0"
     type: string
 
   - name: SECRETS_VARIABLE_GROUP
@@ -115,7 +95,7 @@ parameters:
 
   - name: TEMPLATE_PATH
     displayName: "The path of the template"
-    default: "../../../.azurepipelines/.templates/linux/build-linux-container-template.yml"
+    default: "../../../.azurepipelines/.templates/linux/build-linux-container-template-sdk.yml"
     
     type: string
 
@@ -131,10 +111,6 @@ jobs:
       CONTEXT: ${{ parameters.CONTEXT }}
       DOCKERFILE_NAME: ${{ parameters.DOCKERFILE_NAME }}
       REGISTRY: ${{ parameters.REGISTRY }}
-      PYTHON3_VERSION: ${{ parameters.PYTHON3_VERSION }}
-      DOTNET_VERSION: ${{ parameters.DOTNET_VERSION }}
-      GO_VERSION: ${{ parameters.GO_VERSION }}
-      JAVA_VERSION: ${{ parameters.JAVA_VERSION }}
       IMAGE_NAME: ${{ parameters.IMAGE_NAME }}
       TAGS: ${{ parameters.TAGS }}
       AZP_URL: ${{ parameters.AZP_URL }}
