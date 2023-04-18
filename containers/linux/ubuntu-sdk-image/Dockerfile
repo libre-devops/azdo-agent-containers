@@ -88,14 +88,17 @@ RUN mkdir -p /azp && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     echo $PATHVAR > /etc/environment
 
+COPY start.sh /home/${NORMAL_USER}/start.sh
+RUN chmod 755 /home/${NORMAL_USER}/start.sh
+CMD [ "./start.sh" ]
 USER ${NORMAL_USER}
 WORKDIR /home/${NORMAL_USER}
 
-# Install homebrew and gcc per recomendation
+# Install homebrew and gcc per recomendation as well a PHP
 RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${NORMAL_USER}/.bashrc && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
-    brew install gcc
+    brew install gcc php
 
 # Install Python
 RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv && \
@@ -171,7 +174,3 @@ RUN curl -s "https://get.sdkman.io" | bash && \
     MICROSOFT_LATEST_OPENJDK=$(sdk list java | grep ms | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+-ms' | head -1) && \
     sdk install java ${MICROSOFT_LATEST_OPENJDK} && \
     sdk use java ${MICROSOFT_LATEST_OPENJDK}
-
-COPY start.sh /home/${NORMAL_USER}/start.sh
-RUN chmod 755 start.sh
-CMD [ "./start.sh" ]
