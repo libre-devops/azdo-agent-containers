@@ -56,21 +56,21 @@ parameters:
  - name: PYTHON3_VERSION
    displayName: "The version of python to be installed by from source"
    type: string
-   default: "3.10.1"
+   default: "3.12.2"
 
  - name: GO_VERSION
    displayName: "The version of Go to be installed"
    type: string
-   default: "1.18.1"
+   default: "1.21.7"
 
  - name: JAVA_VERSION
    displayName: "The version of java to be installed"
    type: string
-   default: "17"
+   default: "21"
 
  - name: DOTNET_VERSION
    displayName: "The version of Dotnet to be installed"
-   default: "6.0"
+   default: "8.0"
    type: string
 
  - name: SECRETS_VARIABLE_GROUP
