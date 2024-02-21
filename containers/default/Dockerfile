@@ -42,7 +42,7 @@ ENV PYENV_ROOT /home/${NORMAL_USER}/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 #Set path vars
-ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt:/opt/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.local/bin:/home/${NORMAL_USER}/.pyenv:/home/${NORMAL_USER}/.pyenv/bin:/home/${NORMAL_USER}/.local:/home/${NORMAL_USER}/.tenv:/home/${NORMAL_USER}/.tenv/bin:/home/${NORMAL_USER}/.pkenv:/home/${NORMAL_USER}/.pkenv/bin:/home/${NORMAL_USER}/.goenv:/home/${NORMAL_USER}/.goenv/bin:/home/${NORMAL_USER}/.jenv:/home/${NORMAL_USER}/.jenv/bin:/home/${NORMAL_USER}/.nvm:/home/${NORMAL_USER}/.rbenv:/home/${NORMAL_USER}/.rbenv/bin:/home/${NORMAL_USER}/.sdkman:/home/${NORMAL_USER}/.sdkman/bin:/home/${NORMAL_USER}/.dotnet:/home/${NORMAL_USER}/.cargo:/home/${NORMAL_USER}/.cargo/bin:/home/${NORMAL_USER}/.phpenv:/home/${NORMAL_USER}/.phpenv/bin"
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt:/opt/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.local/bin:/home/${NORMAL_USER}/.local:/home/${NORMAL_USER}:/home/${NORMAL_USER}/.tenv:/home/${NORMAL_USER}/.tenv/bin:/home/${NORMAL_USER}/.pkenv:/home/${NORMAL_USER}/.pkenv/bin:/home/${NORMAL_USER}/.pyenv:/home/${NORMAL_USER}/.pyenv/bin:/home/${NORMAL_USER}/.pyenv/shims:/home/${NORMAL_USER}/.local/bin"
 ENV PATHVAR="PATH=${PATH}"
 
 USER root
@@ -186,15 +186,16 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sudo apt update -y && \
+RUN sudo apt-get update && \
     sudo apt-get install podman podman-docker fuse-overlayfs -y
 
-RUN echo builder:100000:65536 > /etc/subuid && \
+RUN useradd podman; \
+    echo builder:100000:65536 > /etc/subuid && \
     echo builder:100000:65536 > /etc/subgid
 
 VOLUME /var/lib/containers
 RUN mkdir -p /home/${NORMAL_USER}/.local/share/containers
-RUN chown ${NORMAL_USER}:${NORMAL_USER} -R /home/${NORMAL_USER}
+RUN chown podman:podman -R /home/${NORMAL_USER} && usermod -aG ${NORMAL_USER} ${NORMAL_USER}
 VOLUME /home/${NORMAL_USER}/.local/share/containers
 
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/containers.conf
