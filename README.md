@@ -47,7 +47,7 @@ optimization, but these work for me. Here is some high level.
 ## Linux
 
 ```shell
-docker run -it ghcr.io/libre-devops/azdo-agent-rhel:latest \
+docker run -it ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest \
 -e AZP_URL="${AZP_URL}" \
 -e AZP_TOKEN="${AZP_TOKEN}" \
 -e AZP_POOL="${AZP_POOL}" \
@@ -62,7 +62,7 @@ Or using podman in a startup script
 REPO="ghcr.io"
 
 USER="libre-devops"
-IMAGE_NAME="azdo-agent-rhel"
+IMAGE_NAME="azdo-agent-containers/rhel"
 TAGS=":latest"
 
 AZP_URL="https://dev.azure.com/example"
@@ -76,6 +76,17 @@ podman run -it \
     -e AZP_POOL="${AZP_POOL}" \
     -e AZP_WORK="${AZP_WORK}" \
     "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
+```
+
+or minimally
+
+```shell
+```shell
+docker run -it ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest \
+-e AZP_URL="${AZP_URL}" \
+-e AZP_TOKEN="${AZP_TOKEN}" \
+```
+
 ```
 
 ## Windows
