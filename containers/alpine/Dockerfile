@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-LABEL org.opencontainers.image.title=alpine-cicd-base
+LABEL org.opencontainers.image.title=alpine
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
 #Set args with blank values - these will be over-written with the CLI

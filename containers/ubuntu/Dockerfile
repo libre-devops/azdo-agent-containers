@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-LABEL org.opencontainers.image.title=azdo-agent-containers
+LABEL org.opencontainers.image.title=ubuntu
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
 RUN rm -rf /bin/sh && ln -sf /bin/bash /bin/sh

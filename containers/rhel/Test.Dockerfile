@@ -107,7 +107,7 @@ RUN curl -s "https://get.sdkman.io" | bash && \
 #Don't include container-selinux and remove
 #directories used by yum that are just taking
 #up space.
-RUN dnf -y module enable container-tools:rhel8; dnf -y update; rpm --restore --quiet shadow-utils; \
+RUN dnf -y module enable container-tools:rhel9; dnf -y update; rpm --restore --quiet shadow-utils; \
 dnf -y install crun podman podman-docker fuse-overlayfs /etc/containers/storage.conf --exclude container-selinux; \
 rm -rf /var/cache /var/log/dnf* /var/log/yum.*
 
