@@ -13,8 +13,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG AZP_URL=https://dev.azure.com/Example
 ARG AZP_TOKEN=ExamplePatToken
 ARG AZP_AGENT_NAME=Example
-ARG AZP_POOL=PoolName
+ARG AZP_POOL=Default
 ARG AZP_WORK=_work
+ARG AZP_DIRECTORY=/home/$NORMAL_USER
 
 #Set the environment with the CLI-passed arguements
 ENV AZP_URL ${AZP_URL}
@@ -22,6 +23,7 @@ ENV AZP_TOKEN ${AZP_TOKEN}
 ENV AZP_AGENT_NAME ${AZP_AGENT_NAME}
 ENV AZP_POOL ${AZP_POOL}
 ENV AZP_WORK ${AZP_WORK}
+ENV AZP_DIRECTORY ${AZP_DIRECTORY}
 
 ENV NORMAL_USER ${NORMAL_USER}
 ENV DEBIAN_FRONTEND=noninteractive
@@ -58,6 +60,7 @@ RUN useradd -ms /bin/bash ${NORMAL_USER} && \
     libffi-dev \
     libicu-dev \
     make \
+    nano \
     software-properties-common \
     libsqlite3-dev \
     libssl-dev \
