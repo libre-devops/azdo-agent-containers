@@ -122,7 +122,7 @@ RUN dnf -y module enable container-tools:rhel9; dnf -y update; rpm --restore --q
 dnf -y install crun podman podman-docker fuse-overlayfs /etc/containers/storage.conf --exclude container-selinux; \
 rm -rf /var/cache /var/log/dnf* /var/log/yum.*
 
-RUN useradd podman; \
+RUN useradd -ms /bin/bash podman; \
 echo podman:10000:5000 > /etc/subuid; \
 echo podman:10000:5000 > /etc/subgid;
 
@@ -135,6 +135,8 @@ VOLUME /home/podman/.local/share/containers
 ADD containers.conf /etc/containers/containers.conf
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/podman-containers.conf
 ADD podman-containers.conf /home/podman/.config/containers/containers.conf
+#https://raw.githubusercontent.com/containers/podman/main/vendor/github.com/containers/storage/storage.conf
+ADD storage.conf /home/podman/.config/containers/storage.conf
 
 #chmod containers.conf and adjust storage.conf to enable Fuse storage.
 RUN chmod 644 /etc/containers/containers.conf; sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' -e 's|^mountopt[[:space:]]*=.*$|mountopt = "nodev,fsync=0"|g' /etc/containers/storage.conf
@@ -169,7 +171,6 @@ RUN pip3 install --user \
   checkov \
   pywinrm \
   podman-compose
-
 
 # Install Azure-CLI as seperate step for cacheing speed
 RUN pip3 install --user azure-cli
