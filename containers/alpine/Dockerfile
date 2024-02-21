@@ -54,6 +54,7 @@ RUN adduser -s /bin/bash -D -h /home/${NORMAL_USER} ${NORMAL_USER} && \
     libxml2-dev \
     libxslt-dev \
     linux-headers \
+    nano \
     ncurses-dev \
     openssl-dev \
     openssl1.1-compat@edge \
