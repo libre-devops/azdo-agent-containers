@@ -1,69 +1,100 @@
-if (-not (Test-Path Env:AZP_URL)) {
-  Write-Error "error: missing AZP_URL environment variable"
-  exit 1
+function Print-Header {
+    param (
+        [string]$message
+    )
+    Write-Host $message -ForegroundColor Cyan
 }
 
-if (-not (Test-Path Env:AZP_TOKEN_FILE)) {
-  if (-not (Test-Path Env:AZP_TOKEN)) {
-    Write-Error "error: missing AZP_TOKEN environment variable"
+$AZP_AGENT_NAME = "azdo-win-agent-$(Get-Date -Format 'ddMMyyyy')-$(Get-Random -Maximum 9999999999)"
+$USER = "microsoft"
+$REPO = "azure-pipelines-agent"
+$OS = "windows"
+$ARCH = "x64"
+$PACKAGE = "zip"
+
+# Check for required tools
+if (-not(Get-Command jq -ErrorAction SilentlyContinue) -or -not(Get-Command curl -ErrorAction SilentlyContinue) -or -not(Get-Command sed -ErrorAction SilentlyContinue)) {
+    Write-Error "You do not have the needed packages (jq, curl, sed) to run the script, please install them"
     exit 1
-  }
-
-  $Env:AZP_TOKEN_FILE = "\azp\.token"
-  $Env:AZP_TOKEN | Out-File -FilePath $Env:AZP_TOKEN_FILE
 }
 
-$AZP_AGENT_NAME = "azdo-win-agent-$(Get-Date -Format 'ddMMyyyy')-$(Get-Random)"
-Remove-Item Env:AZP_TOKEN
+Print-Header "0. Checking jq, curl, and sed are installed..."
 
-if ($Env:AZP_WORK -and -not (Test-Path Env:AZP_WORK)) {
-  New-Item $Env:AZP_WORK -ItemType directory | Out-Null
+$azdoLatestAgentVersion = curl --silent "https://api.github.com/repos/$USER/$REPO/releases/latest" | jq -r .tag_name
+$strippedTagAzDoAgentVersion = $azdoLatestAgentVersion -replace 'v', ''
+$AZP_AGENTPACKAGE_URL = "https://vstsagentpackage.azureedge.net/agent/$strippedTagAzDoAgentVersion/vsts-agent-$OS-$ARCH-$strippedTagAzDoAgentVersion.$PACKAGE"
+
+if (-not $Env:AZP_URL) {
+    Write-Error "error: missing AZP_URL environment variable"
+    exit 1
 }
 
-New-Item "\azp\agent" -ItemType directory | Out-Null
+if (-not $Env:AZP_TOKEN_FILE) {
+    if (-not $Env:AZP_TOKEN) {
+        Write-Error "error: missing AZP_TOKEN environment variable"
+        exit 1
+    }
+    $AZP_TOKEN_FILE = "${Env:AZP_DIRECTORY}\.token"
+    $Env:AZP_TOKEN | Out-File -FilePath $AZP_TOKEN_FILE
+}
 
-# Let the agent ignore the token env variables
+Remove-Item Env:AZP_TOKEN -ErrorAction Ignore
+
+if ($Env:AZP_WORK) {
+    New-Item -Path $Env:AZP_WORK -ItemType Directory -Force | Out-Null
+}
+
+Remove-Item "${Env:AZP_DIRECTORY}\agent" -Recurse -ErrorAction Ignore
+New-Item "${Env:AZP_DIRECTORY}\agent" -ItemType Directory | Out-Null
+
+Set-Location "${Env:AZP_DIRECTORY}\agent"
+
+$Env:AGENT_ALLOW_RUNASROOT = "1"
+
+function Cleanup {
+    Print-Header "Cleanup. Removing Azure Pipelines agent..."
+    .\config.cmd remove --unattended --auth PAT --token (Get-Content $Env:AZP_TOKEN_FILE)
+}
+
 $Env:VSO_AGENT_IGNORE = "AZP_TOKEN,AZP_TOKEN_FILE"
 
-Set-Location agent
+Print-Header "1. Determining matching Azure Pipelines agent..."
 
-Write-Host "1. Determining matching Azure Pipelines agent..." -ForegroundColor Cyan
+$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(Get-Content $Env:AZP_TOKEN_FILE)"))
+$AZP_AGENT_RESPONSE = Invoke-RestMethod -Headers @{Authorization=("Basic $base64AuthInfo")} -Uri "$($Env:AZP_URL)/_apis/distributedtask/packages/agent?platform=win-x64"
 
-$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$(Get-Content ${Env:AZP_TOKEN_FILE})"))
-$package = Invoke-RestMethod -Headers @{Authorization=("Basic $base64AuthInfo")} "$(${Env:AZP_URL})/_apis/distributedtask/packages/agent?platform=win-x64&`$top=1"
-$packageUrl = $package[0].Value.downloadUrl
+if ($AZP_AGENT_RESPONSE) {
+    $AZP_AGENTPACKAGE_URL = $AZP_AGENT_RESPONSE.value | Sort-Object -Property version -Descending | Select-Object -First 1 -ExpandProperty downloadUrl
+}
 
-Write-Host $packageUrl
+if (-not $AZP_AGENTPACKAGE_URL) {
+    Write-Error "error: could not determine a matching Azure Pipelines agent - check that account '$Env:AZP_URL' is correct and the token is valid for that account"
+    exit 1
+}
 
-Write-Host "2. Downloading and installing Azure Pipelines agent..." -ForegroundColor Cyan
+Print-Header "2. Downloading and installing Azure Pipelines agent..."
 
 $wc = New-Object System.Net.WebClient
-$wc.DownloadFile($packageUrl, "$(Get-Location)\agent.zip")
+$wc.DownloadFile($AZP_AGENTPACKAGE_URL, "${Env:AZP_DIRECTORY}\agent\agent.zip")
+Expand-Archive -Path "${Env:AZP_DIRECTORY}\agent\agent.zip" -DestinationPath "${Env:AZP_DIRECTORY}\agent"
 
-Expand-Archive -Path "agent.zip" -DestinationPath "\azp\agent"
+Print-Header "3. Configuring Azure Pipelines agent..."
 
-try
-{
-  Write-Host "3. Configuring Azure Pipelines agent..." -ForegroundColor Cyan
+.\config.cmd --unattended `
+  --agent $AZP_AGENT_NAME `
+  --url $Env:AZP_URL `
+  --auth PAT `
+  --token (Get-Content $Env:AZP_TOKEN_FILE) `
+  --pool "${Env:AZP_POOL}" `
+  --work "${Env:AZP_WORK}" `
+  --replace `
+  --acceptTeeEula
 
-  .\config.cmd --unattended `
-    --agent $AZP_AGENT_NAME `
-    --url "$(${Env:AZP_URL})" `
-    --auth PAT `
-    --token "$(Get-Content ${Env:AZP_TOKEN_FILE})" `
-    --pool "$(if (Test-Path Env:AZP_POOL) { ${Env:AZP_POOL} } else { 'Default' })" `
-    --work "$(if (Test-Path Env:AZP_WORK) { ${Env:AZP_WORK} } else { '_work' })" `
-    --replace
+Print-Header "4. Running Azure Pipelines agent..."
 
-  Write-Host "4. Running Azure Pipelines agent..." -ForegroundColor Cyan
-
-  .\run.cmd
+try {
+    .\run.cmd
 }
-finally
-{
-  Write-Host "Cleanup. Removing Azure Pipelines agent..." -ForegroundColor Cyan
-
-  .\config.cmd remove --unattended `
-    --auth PAT `
-    --token "$(Get-Content ${Env:AZP_TOKEN_FILE})"
+finally {
+    Cleanup
 }
