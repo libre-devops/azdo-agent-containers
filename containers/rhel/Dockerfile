@@ -69,6 +69,7 @@ RUN useradd -ms /bin/bash ${NORMAL_USER} && \
     make \
     ncurses-devel \
     openssl-devel \
+    procps-ng \
     sqlite-devel \
     unzip \
     wget \
@@ -118,11 +119,11 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     chown -R ${NORMAL_USER}:${NORMAL_USER} /home/${NORMAL_USER}
 
 RUN dnf -y module enable container-tools:rhel9; dnf -y update; rpm --restore --quiet shadow-utils; \
-dnf -y install crun podman podman-docker fuse-overlayfs /etc/containers/storage.conf --exclude container-selinux; \
-rm -rf /var/cache /var/log/dnf* /var/log/yum.*
+    dnf -y install crun podman podman-docker fuse-overlayfs /etc/containers/storage.conf --exclude container-selinux; \
+    rm -rf /var/cache /var/log/dnf* /var/log/yum.*
 
-RUN echo builder:100000:65536 > /etc/subuid && \
-    echo builder:100000:65536 > /etc/subgid
+
+RUN echo "${NORMAL_USER}:100000:65536" | sudo tee -a /etc/subuid /etc/subgid
 
 VOLUME /var/lib/containers
 RUN mkdir -p /home/${NORMAL_USER}/.local/share/containers
@@ -154,11 +155,11 @@ WORKDIR /home/${NORMAL_USER}
 CMD [ "./start.sh" ]
 
 RUN tenv tf install latest --verbose && \
-    tenv tf use latest --verbose && \
-    tenv tofu install latest --verbose && \
-    tenv tofu use latest --verbose && \
-    tenv tg install latest --verbose && \
-    tenv tg use latest --verbose
+    tenv tf use latest --verbose
+#    tenv tofu install latest --verbose && \
+#    tenv tofu use latest --verbose && \
+#    tenv tg install latest --verbose && \
+#    tenv tg use latest --verbose
 
 RUN pip3 install --user \
   pipenv \
