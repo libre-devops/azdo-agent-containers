@@ -9,7 +9,7 @@ parameters:
     default: "containers/ubuntu"
   - name: docker_image_name
     displayName: Docker Image Name
-    type: boolean
+    type: string
     default: "azdo-agent-containers/ubuntu:latest"
   - name: enable_debug_mode
     displayName: Whether debug mode is enabled
