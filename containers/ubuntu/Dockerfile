@@ -127,6 +127,7 @@ RUN chmod +x /home/${NORMAL_USER}/start.sh && \
 
 USER ${NORMAL_USER}
 WORKDIR /home/${NORMAL_USER}
+CMD [ "./home/${NORMAL_USER}/start.sh" ]
 
 RUN tenv tf install latest --verbose && \
     tenv tf use latest --verbose && \
