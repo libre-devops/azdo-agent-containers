@@ -1,4 +1,4 @@
-name: 'Run Docker - RHEL'
+name: 'Run Docker - Default'
 
 # Allow run manually
 on:
