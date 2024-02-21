@@ -11,7 +11,7 @@ on:
       docker_image_name:
         type: string
         description: 'Docker Image name?'
-        default: "cicd-base-images/rhel-cicd-base:latest"
+        default: "azdo-agent-containers/rhel:latest"
       enable_debug_mode:
         type: boolean
         description: 'Whether debug mode should be enable for within the script'

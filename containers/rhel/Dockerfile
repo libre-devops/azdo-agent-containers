@@ -2,7 +2,7 @@
 FROM registry.access.redhat.com/ubi9/ubi:latest
 
 LABEL org.opencontainers.image.title=rhel-cicd-base
-LABEL org.opencontainers.image.source=https://github.com/libre-devops/cicd-base-images
+LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
 RUN rm -rf /bin/sh && ln -sf /bin/bash /bin/sh
 
