@@ -186,7 +186,8 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sudo apt-get install podman podman-docker fuse-overlayfs -y
+RUN sudo apt update -y && \
+    sudo apt-get install podman podman-docker fuse-overlayfs -y
 
 RUN echo builder:100000:65536 > /etc/subuid && \
     echo builder:100000:65536 > /etc/subgid
