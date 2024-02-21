@@ -121,19 +121,18 @@ RUN dnf -y module enable container-tools:rhel9; dnf -y update; rpm --restore --q
 dnf -y install crun podman podman-docker fuse-overlayfs /etc/containers/storage.conf --exclude container-selinux; \
 rm -rf /var/cache /var/log/dnf* /var/log/yum.*
 
-RUN useradd podman; \
-echo podman:10000:5000 > /etc/subuid; \
-echo podman:10000:5000 > /etc/subgid;
+RUN echo builder:100000:65536 > /etc/subuid && \
+    echo builder:100000:65536 > /etc/subgid
 
 VOLUME /var/lib/containers
-RUN mkdir -p /home/podman/.local/share/containers
-RUN chown podman:podman -R /home/podman && usermod -aG podman ${NORMAL_USER}
-VOLUME /home/podman/.local/share/containers
+RUN mkdir -p /home/${NORMAL_USER}/.local/share/containers
+RUN chown ${NORMAL_USER}:${NORMAL_USER} -R /home/${NORMAL_USER}
+VOLUME /home/${NORMAL_USER}/.local/share/containers
 
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/containers.conf
 ADD containers.conf /etc/containers/containers.conf
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/podman-containers.conf
-ADD podman-containers.conf /home/podman/.config/containers/containers.conf
+ADD podman-containers.conf /home/${NORMAL_USER}/.config/containers/containers.conf
 
 #chmod containers.conf and adjust storage.conf to enable Fuse storage.
 RUN chmod 644 /etc/containers/containers.conf; sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' -e 's|^mountopt[[:space:]]*=.*$|mountopt = "nodev,fsync=0"|g' /etc/containers/storage.conf
@@ -166,8 +165,18 @@ RUN pip3 install --user \
   virtualenv \
   terraform-compliance \
   checkov \
-  pywinrm
+  pywinrm \
+  podman-compose
 
 
 # Install Azure-CLI as seperate step for cacheing speed
 RUN pip3 install --user azure-cli
+
+# Install homebrew and gcc per recomendation as well a PHP
+RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${NORMAL_USER}/.bashrc && \
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
+    brew install gcc && \
+    brew install tfsec
+
+
