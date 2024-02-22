@@ -66,7 +66,7 @@ COPY start.ps1 /azp/start.ps1
 RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted ; pwsh -Command Install-Module -Name Az -Force -AllowClobber -Scope AllUsers -Repository PSGallery
 
 RUN scoop install terraform packer ; \
-    choco install -y tfsec ; \
+    choco install -y trivy ; \
     pip3 install \
     terraform-compliance \
     checkov \

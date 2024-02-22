@@ -107,9 +107,10 @@ RUN git clone https://github.com/iamhsa/pkenv.git /home/${NORMAL_USER}/.pkenv &&
 RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     chown -R ${NORMAL_USER}:${NORMAL_USER} /home/${NORMAL_USER}
 
-RUN curl -s -L $(curl -s -L https://api.github.com/repos/tfsec/tfsec/releases/latest | jq -r '.assets[] | select(.name | contains("tfsec-linux-amd64")) | .browser_download_url') -o /tmp/tfsec && \
-    chmod +x /tmp/tfsec && \
-    mv /tmp/tfsec /usr/local/bin
+RUN curl -sL $(curl -sL https://api.github.com/repos/aquasecurity/trivy/releases/latest | jq -r '.assets[] | select(.name | test("Linux-64bit\\.tar\\.gz$")) | .browser_download_url') -o /tmp/trivy.tar.gz && \
+    tar zxvf /tmp/trivy.tar.gz -C /tmp && \
+    chmod +x /tmp/trivy && \
+    mv /tmp/trivy /usr/local/bin/
 
 COPY start.sh /home/${NORMAL_USER}/start.sh
 COPY env.sh /home/${NORMAL_USER}/env.sh
