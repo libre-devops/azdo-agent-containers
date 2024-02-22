@@ -172,6 +172,16 @@ root@7483265642f0:/# ls
 bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 ```
 
+## Run Azure DevOps agent as root
+```shell
+podman run -it --privileged -u root \
+    -e AZP_URL="${AZP_URL}" \
+    -e AZP_TOKEN="${AZP_TOKEN}" \
+    -e AGENT_ALLOW_RUNASROOT=1 \
+    ghcr.io/libre-devops/azdo-agent-containers/rhel:latest
+```
+
+
 Alternatively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
 
 ## Info

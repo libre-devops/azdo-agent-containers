@@ -18,6 +18,8 @@ fi
 
 unset AZP_TOKEN
 
+AZP_AGENT_NAME="azdo-agent-lnx-rhel-$(date +'%d%m%Y')-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)"
+
 if [ -n "${AZP_WORK}" ]; then
   mkdir -p "${AZP_WORK}"
 fi
