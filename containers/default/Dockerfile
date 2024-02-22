@@ -138,6 +138,14 @@ RUN git clone https://github.com/iamhsa/pkenv.git /home/${NORMAL_USER}/.pkenv &&
     pkenv install ${PACKER_LATEST_VERSION} && \
     pkenv use ${PACKER_LATEST_VERSION}
 
+RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv && \
+    echo 'eval "$(~/.rbenv/bin/rbenv init - bash)"' >> ~/.bashrc && \
+    source ~/.bashrc && \
+    git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build && \
+    RUBY_LATEST_VERSION=$(curl -s https://www.ruby-lang.org/en/downloads/ | grep -oP 'The current stable version is \K[0-9.]+' | sed 's/\.$//') && \
+    rbenv install ${RUBY_LATEST_VERSION} && \
+    rbenv global ${RUBY_LATEST_VERSION}
+
 # Install Go
 RUN git clone https://github.com/syndbg/goenv.git ~/.goenv && \
     echo 'export GOENV_ROOT="${HOME}/.goenv"' >> ~/.bashrc && \
