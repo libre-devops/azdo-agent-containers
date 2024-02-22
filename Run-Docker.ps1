@@ -57,7 +57,7 @@
 
 param (
     [string]$DockerFileName = "Dockerfile",
-    [string]$DockerImageName = "base-images/azdo-agent-containers:latest",
+    [string]$DockerImageName = "base-images/azdo-agent-containers",
     [string]$RegistryUrl = "ghcr.io",
     [string]$RegistryUsername = "myusername",
     [string]$RegistryPassword = "mypassword",
@@ -65,7 +65,7 @@ param (
     [string]$WorkingDirectory = (Get-Location).Path,
     [string]$DebugMode = "false",
     [string]$PushDockerImage = "true",
-    [string[]]$AdditionalTags = @((Get-Date -Format "yyyy-MM"))
+    [string[]]$AdditionalTags = @("latest", (Get-Date -Format "yyyy-MM"))
 )
 
 # Function to convert string to boolean
