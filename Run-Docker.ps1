@@ -226,7 +226,7 @@ if ($buildSuccess)
     Write-Host "Docker build complete." -ForegroundColor Green
     foreach ($tag in $AdditionalTags)
     {
-        $fullTagName = "${RegistryUrl}/${ImageOrganisation}/${DockerImageName}:$tag"
+        $fullTagName = "${DockerImageName}:$tag"
         Write-Host "Info: Tagging Docker image as $fullTagName" -ForegroundColor Green
         docker tag $DockerImageName $fullTagName
     }
@@ -235,7 +235,7 @@ if ($buildSuccess)
         $fullTagNames = @()
         foreach ($tag in $AdditionalTags)
         {
-            $fullTagNames += "${RegistryUrl}/${ImageOrganisation}/${DockerImageName}:$tag"
+            $fullTagNames += "${DockerImageName}:$tag"
         }
         Push-DockerImage -FullTagNames $fullTagNames
     }
