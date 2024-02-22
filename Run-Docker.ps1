@@ -132,7 +132,7 @@ function Build-DockerImage
     try
     {
         Write-Host "Info: Building Docker image $DockerImageName from $filePath" -ForegroundColor Green
-        docker build -t $DockerImageName -f $filePath $Path | Out-Host
+        docker build --squash -t $DockerImageName -f $filePath $Path | Out-Host
         if ($LASTEXITCODE -eq 0)
         {
             return $true
