@@ -37,6 +37,9 @@ ENV JAVA_HOME ${JAVA_HOME}
 ENV NVM_DIR ${NVM_DIR}
 ENV GOENV_ROOT=/home/${NORMAL_USER}/.goenv
 
+# Set GOPATH for Go workspace
+ENV GOPATH=/home/${NORMAL_USER}/go
+
 # Environment variables for pyenv
 ENV HOME /home/${NORMAL_USER}
 ENV PYENV_ROOT /home/${NORMAL_USER}/.pyenv
