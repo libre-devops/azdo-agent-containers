@@ -234,9 +234,7 @@ CMD [ "./start.sh" ]
 RUN tenv tf install latest --verbose && \
     tenv tf use latest --verbose && \
     tenv tofu install latest --verbose && \
-    tenv tofu use latest --verbose && \
-    tenv tg install latest --verbose && \
-    tenv tg use latest --verbose
+    tenv tofu use latest --verbose
 
 RUN pip3 install --user \
     pipenv \
