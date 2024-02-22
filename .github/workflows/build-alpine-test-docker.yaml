@@ -1,4 +1,4 @@
-name: 'Run Docker - Alpine'
+name: 'Run Docker - Alpine Test'
 
 # Allow run manually
 on:
