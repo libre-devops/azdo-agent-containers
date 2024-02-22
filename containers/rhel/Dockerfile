@@ -67,6 +67,7 @@ RUN useradd -ms /bin/bash ${NORMAL_USER} && \
     libffi-devel \
     libicu-devel \
     make \
+    nano \
     ncurses-devel \
     openssl-devel \
     procps-ng \
