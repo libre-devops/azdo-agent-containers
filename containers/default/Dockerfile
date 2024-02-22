@@ -196,8 +196,8 @@ RUN useradd podman; \
 
 VOLUME /var/lib/containers
 RUN mkdir -p /home/${NORMAL_USER}/.local/share/containers
-RUN chown podman:podman -R /home/${NORMAL_USER} && usermod -aG ${NORMAL_USER} ${NORMAL_USER}
-VOLUME /home/${NORMAL_USER}/.local/share/containers
+RUN chown podman:podman -R /home/${NORMAL_USER} && usermod -aG podman ${NORMAL_USER}
+VOLUME /home/podman/.local/share/containers
 
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/containers.conf
 ADD containers.conf /etc/containers/containers.conf
@@ -228,10 +228,10 @@ CMD [ "./start.sh" ]
 
 RUN tenv tf install latest --verbose && \
     tenv tf use latest --verbose
-#    tenv tofu install latest --verbose && \
-#    tenv tofu use latest --verbose && \
-#    tenv tg install latest --verbose && \
-#    tenv tg use latest --verbose
+    tenv tofu install latest --verbose && \
+    tenv tofu use latest --verbose && \
+    tenv tg install latest --verbose && \
+    tenv tg use latest --verbose
 
 RUN pip3 install --user \
     pipenv \
