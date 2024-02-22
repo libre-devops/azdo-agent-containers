@@ -74,7 +74,7 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
 
 RUN scoop install terraform packer ; \
     choco install -y trivy ; \
-    pip3 install \
+    pip install \
     terraform-compliance \
     checkov \
     black
