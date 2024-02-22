@@ -2,6 +2,8 @@ name: 'Run Docker - Minimal'
 
 # Allow run manually
 on:
+  schedule:
+    - cron: '0 0 1 * *'  # This will run at 00:00 on the 1st of every month
   workflow_dispatch:
     inputs:
       working_directory:
