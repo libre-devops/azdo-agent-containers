@@ -1,4 +1,4 @@
-name: 'Run Docker - Alpine Test'
+name: 'Run Docker - Minimal'
 
 # Allow run manually
 on:
@@ -7,11 +7,11 @@ on:
       working_directory:
         type: string
         description: What working directory should be passed to the script
-        default: "containers/test"
+        default: "containers/minimal"
       docker_image_name:
         type: string
         description: 'Docker Image name?'
-        default: "azdo-agent-containers/test"
+        default: "azdo-agent-containers/minimal"
       enable_debug_mode:
         type: boolean
         description: 'Whether debug mode should be enable for within the script'

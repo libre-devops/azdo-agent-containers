@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-LABEL org.opencontainers.image.title=test
+LABEL org.opencontainers.image.title=alpine
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
 #Set args with blank values - these will be over-written with the CLI
@@ -30,8 +30,6 @@ ENV NORMAL_USER ${NORMAL_USER}
 
 # Environment variables for pyenv
 ENV HOME /home/${NORMAL_USER}
-ENV PYENV_ROOT /home/${NORMAL_USER}/.pyenv
-ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 #Set path vars
 ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt:/opt/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.local/bin:/home/${NORMAL_USER}/.local:/home/${NORMAL_USER}:/home/${NORMAL_USER}/.tenv:/home/${NORMAL_USER}/.tenv/bin:/home/${NORMAL_USER}/.pkenv:/home/${NORMAL_USER}/.pkenv/bin:/home/${NORMAL_USER}/.pyenv:/home/${NORMAL_USER}/.pyenv/bin:/home/${NORMAL_USER}/.pyenv/shims:/home/${NORMAL_USER}/.local/bin"
@@ -56,15 +54,29 @@ RUN adduser -s /bin/bash -D -h /home/${NORMAL_USER} ${NORMAL_USER} && \
     libxml2-dev \
     libxslt-dev \
     linux-headers \
-    nano \
     ncurses-dev \
     openssl-dev \
     openssl1.1-compat@edge \
     readline-dev \
     sqlite-dev \
     sudo \
-    tk-dev \
     xz-dev && \
     apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main add --no-cache \
     lttng-ust && \
     echo $PATHVAR > /etc/environmentecho $PATHVAR > /etc/environment
+
+RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
+    chown -R ${NORMAL_USER}:${NORMAL_USER} /home/${NORMAL_USER}
+
+COPY start.sh /home/${NORMAL_USER}/start.sh
+COPY env.sh /home/${NORMAL_USER}/env.sh
+RUN chmod +x /home/${NORMAL_USER}/start.sh && \
+    chmod +x /home/${NORMAL_USER}/env.sh && \
+    chown -R "${NORMAL_USER}:${NORMAL_USER}" /home/${NORMAL_USER}
+
+USER ${NORMAL_USER}
+WORKDIR /home/${NORMAL_USER}
+CMD [ "./start.sh" ]
+
+USER ${NORMAL_USER}
+WORKDIR /home/${NORMAL_USER}
