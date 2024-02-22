@@ -5,7 +5,7 @@ function Print-Header {
     Write-Host $message -ForegroundColor Cyan
 }
 
-$AZP_AGENT_NAME = "azdo-win-agent-$(Get-Date -Format 'ddMMyyyy')-$(Get-Random -Maximum 9999999999)"
+$AZP_AGENT_NAME = "azdo-winsrvcr2022-agent-$(Get-Date -Format 'ddMMyyyy')-$(Get-Random -Maximum 9999999999)"
 $USER = "microsoft"
 $REPO = "azure-pipelines-agent"
 $OS = "windows"

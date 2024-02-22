@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
 # escape = `
 
+LABEL org.opencontainers.image.title=windows-servercore2022
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
 COPY tls-fix.ps1 /tls-fix.ps1
@@ -17,8 +18,12 @@ ENV ACCEPT_EULA ${ACCEPT_EULA}
 #Set args with blank values - these will be over-written with the CLI
 ARG AZP_URL=https://dev.azure.com/Example
 ARG AZP_TOKEN=ExamplePatToken
-ARG AZP_POOL=PoolName
+ARG AZP_AGENT_NAME=Example
+ARG AZP_POOL=Default
 ARG AZP_WORK=_work
+ARG AZP_DIRECTORY="C:\Users"\\${NORMAL_USER}"
+ARG ACCEPT_EULA=y
+ARG TARGETARCH="win-x64"
 
 #Set the environment with the CLI-passed arguements
 ENV AZP_URL ${AZP_URL}
@@ -75,5 +80,4 @@ RUN scoop install terraform packer ; \
 #Use Powershell Core instead of 5
 SHELL ["pwsh", "-Command"]
 
-
-CMD C:/azp/start.ps1
+CMD C:/Users/${NORMAL_USER}/start.ps1
