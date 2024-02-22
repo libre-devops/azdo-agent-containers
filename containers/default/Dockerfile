@@ -227,7 +227,7 @@ WORKDIR /home/${NORMAL_USER}
 CMD [ "./start.sh" ]
 
 RUN tenv tf install latest --verbose && \
-    tenv tf use latest --verbose
+    tenv tf use latest --verbose && \
     tenv tofu install latest --verbose && \
     tenv tofu use latest --verbose && \
     tenv tg install latest --verbose && \
