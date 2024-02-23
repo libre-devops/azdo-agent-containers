@@ -73,9 +73,4 @@ SHELL ["pwsh", "-Command"]
 WORKDIR ${AZP_DIRECTORY}
 COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
 
-USER ContainerAdministrator
-
-RUN choco install -y sed
-USER ContainerUser
-
 CMD ["pwsh", "-file",  "start.ps1"]
