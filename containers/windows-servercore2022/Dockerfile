@@ -43,7 +43,8 @@ RUN Set-ExecutionPolicy Unrestricted ;  \
     choco install -y \
     sysinternals \
     powershell-core \
-    azure-cli
+    azure-cli \
+    trivy
 
 # This can take a while, which is why its a separate step
 RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted ; \
@@ -91,9 +92,7 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
 WORKDIR ${AZP_DIRECTORY}
 COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
 
-RUN choco install -y trivy ; \
-    nvm install --lts ; \
-    pip3 install \
+RUN pip3 install \
     terraform-compliance \
     checkov \
     black
