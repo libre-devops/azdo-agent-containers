@@ -56,7 +56,7 @@ $packageUrl = $package[0].Value.downloadUrl
 Write-Host $packageUrl
 
 Print-Header "2. Downloading and installing Azure Pipelines agent..."
-$CurrentWd = $(Get-Location).Path
+$CurrentWd = $( Get-Location ).Path
 $AgentPath = Join-Path -Path $CurrentWd -ChildPath "agent.zip"
 $wc = New-Object System.Net.WebClient
 $wc.DownloadFile($packageUrl, $AgentPath)
@@ -106,7 +106,7 @@ finally
 {
     Print-Header "Cleanup. Removing Azure Pipelines agent..."
 
-    .\config.cmd remove --unattended `
+    pwsh -Command $configCmdPath remove --unattended `
     --auth PAT `
     --token "$( Get-Content ${Env:AZP_TOKEN_FILE} )"
 }
