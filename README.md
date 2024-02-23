@@ -2,7 +2,7 @@
 
 Hello :wave:
 
-In this repo, you will find the various files needed to host a Self-Hosted Azure DevOps Agent inside of a container as
+In this repo, you will find the various files needed to host a Self-Hosted Azure DevOps Agent inside a container as
 well as examples of a CI/CD workflow.
 
 These images try to follow
@@ -29,7 +29,7 @@ optimization, but these work for me. Here is some high level.
 - CI/CD with Azure DevOps :rocket:
     - Using easy, readable, script params instead of in-built Steps, Templates & Actions for easy migrations to other
       CI/CDs
-- Container registry using GitHub Packages with Github Container Registry :sunglasses:
+- Container registry using GitHub Packages with GitHub Container Registry :sunglasses:
 - Example scripts in Podman, CI/CD pipelines in Podman for Linux and Docker for Windows :whale:
 - Linux Images used in the repo:
     - [RedHat 9 Universal Basic Image ](https://catalog.redhat.com/software/container-stacks/detail/5ec53f50ef29fd35586d9a56)
@@ -79,7 +79,7 @@ ghcr.io/libre-devops/azdo-agent-containers/windows-servercore2022:latest
 ## Podman-in-Podman
 
 Looking to run Podman containers within a container? The `rhel` and `default` containers in this repo support it!. To do this however,
-you do need to run the container in `--priviledged` mode and run the container user as root. You can still run the container itself as a standard user, its just the inside user that will need to be root. Here is an example on
+you do need to run the container in `--priviledged` mode and run the container user as root. You can still run the container itself as a standard user, it's just the inside user that will need to be root. Here is an example on
 how to run:
 
 ```shell
