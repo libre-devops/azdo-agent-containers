@@ -23,7 +23,7 @@ if (-not(Test-Path Env:AZP_TOKEN_FILE))
     $Env:AZP_TOKEN | Out-File -FilePath $Env:AZP_TOKEN_FILE
 }
 
-$AZP_AGENT_NAME = "azdo-winsrvcr2022-agent-$( Get-Date -Format 'ddMMyyyy' )-$( Get-Random -Maximum 9999999999 )"
+$AZP_AGENT_NAME = "azdo-agent-win-srcr2022-$( Get-Date -Format 'ddMMyyyy' )-$( Get-Random -Maximum 9999999999 )"
 
 Remove-Item Env:AZP_TOKEN
 
