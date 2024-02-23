@@ -82,19 +82,17 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
     rust \
     ruby \
     sed \
-    tree \
     which \
-    zip ; \
-    scoop bucket add java ; \
-    scoop install microsoft-jdk
-
-# Changed C:/azp to use the AZP_DIRECTORY for the work directory
-WORKDIR ${AZP_DIRECTORY}
-COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
-
-RUN pip3 install \
-    terraform-compliance \
-    checkov \
-    black
-
-CMD ${AZP_DIRECTORY}/start.ps1
+    zip
+#    scoop bucket add java ; \
+#    scoop install microsoft-jdk ; \
+#    pip3 install --user \
+#    terraform-compliance \
+#    checkov \
+#    black
+#
+## Changed C:/azp to use the AZP_DIRECTORY for the work directory
+#WORKDIR ${AZP_DIRECTORY}
+#COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
+#
+#CMD ${AZP_DIRECTORY}/start.ps1
