@@ -1,4 +1,5 @@
 $AZP_DIRECTORY = $Env:AZP_DIRECTORY
+. ${AZP_DIRECTORY}/configure-path.ps1
 
 function Print-Header($header)
 {

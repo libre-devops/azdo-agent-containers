@@ -27,13 +27,11 @@ ENV AZP_POOL=${AZP_POOL}
 ENV AZP_WORK=${AZP_WORK}
 ENV AZP_DIRECTORY=${AZP_DIRECTORY}
 
-# Corrected PATH to dynamically use the user's home directory for scoop shims
-ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Python;C:\Python\Scripts;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\scoop\apps;C:\Users\ContainerUser\scoop\apps\nvm\current;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\go\current"
-
 # Use Powershell instead of CMD
 SHELL ["powershell", "-Command"]
 
 USER ContainerAdministrator
+ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\scoop\apps;C:\Users\ContainerUser\scoop\apps\nvm\current;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\go\current"
 
 RUN powershell /tls-fix.ps1 ; Remove-Item -Force /tls-fix.ps1
 
@@ -53,6 +51,9 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
     pwsh -Command Install-Module -Name Pester -Force -AllowClobber -Scope AllUsers -Repository PSGallery
 
 USER ContainerUser
+ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\scoop\apps;C:\Users\ContainerUser\scoop\apps\nvm\current;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\go\current"
+COPY configure-path.ps1 ${AZP_DIRECTORY}/configure-path.ps1
+
 
 # Use Powershell instead of CMD
 SHELL ["pwsh", "-Command"]
@@ -82,16 +83,16 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
     python \
     sed \
     which \
-    zip
-#    scoop bucket add java ; \
-#    scoop install microsoft-jdk ; \
-#    pip3 install --user \
-#    terraform-compliance \
-#    checkov \
-#    black
-#
-## Changed C:/azp to use the AZP_DIRECTORY for the work directory
-#WORKDIR ${AZP_DIRECTORY}
-#COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
-#
-#CMD ${AZP_DIRECTORY}/start.ps1
+    zip ; \
+    scoop bucket add java ; \
+    scoop install microsoft-jdk ; \
+    pip3 install --user \
+    terraform-compliance \
+    checkov \
+    black
+
+# Changed C:/azp to use the AZP_DIRECTORY for the work directory
+WORKDIR ${AZP_DIRECTORY}
+COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
+
+CMD ${AZP_DIRECTORY}/start.ps1
