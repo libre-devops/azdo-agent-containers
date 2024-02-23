@@ -1,5 +1,4 @@
 $AZP_DIRECTORY = $Env:AZP_DIRECTORY
-. ${AZP_DIRECTORY}/configure-path.ps1
 
 function Print-Header($header)
 {
@@ -57,17 +56,19 @@ $packageUrl = $package[0].Value.downloadUrl
 Write-Host $packageUrl
 
 Print-Header "2. Downloading and installing Azure Pipelines agent..."
-
+$CurrentWd = $(Get-Location).Path
+$AgentPath = Join-Path -Path $CurrentWd -ChildPath "agent.zip"
 $wc = New-Object System.Net.WebClient
-$wc.DownloadFile($packageUrl, "$( Get-Location )\agent.zip")
+$wc.DownloadFile($packageUrl, $AgentPath)
 
-Expand-Archive -Path "agent.zip" -DestinationPath "${AZP_DIRECTORY}\agent"
+Expand-Archive -Path $AgentPath -DestinationPath "C:\agent"
+$configCmdPath = Join-Path -Path "C:\agent" -ChildPath "config.cmd"
 
 try
 {
     Print-Header "3. Configuring Azure Pipelines agent..."
 
-    .\config.cmd --unattended `
+    pwsh -Command $configCmdPath --unattended `
     --agent "$( if (Test-Path Env:AZP_AGENT_NAME)
     {
         ${Env:AZP_AGENT_NAME}

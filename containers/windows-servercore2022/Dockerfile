@@ -44,6 +44,7 @@ RUN Set-ExecutionPolicy Unrestricted ;  \
     git \
     7zip \
     sudo \
+    sed \
     python \
     jq \
     gh \
@@ -63,7 +64,7 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
 USER ContainerUser
 ENV PATH="C:\Msys2;C:\Cygwin;C:\Program Files\PowerShell\7;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;C:\Python311\Scripts;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerUser\AppData\Roaming\Python\Python311\Scripts;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\Go\bin;C:\Program Files\PowerShell\7\;C:\Users\ContainerUser\go\bin;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\.local\bin;C:\Users\ContainerUser\.local;C:\Program Files\OpenSSL-Win64\bin;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Pandoc\;C:\Users\ContainerUser\.dotnet\tools;C:\Users\ContainerUser\AppData\Roaming\Python\Python311\Scripts;C:\Users\ContainerUser\.dotnet\tools;C:\Program Files\PowerShell\7;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;C:\Python311\Scripts;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Roaming\Python\Python311\Scripts;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\Go\bin;C:\Program Files\PowerShell\7\;C:\Users\ContainerAdministrator\go\bin;C:\Users\ContainerAdministrator\scoop\apps\python\current\Scripts;C:\Users\ContainerAdministrator\scoop\apps\python\current;C:\Users\ContainerAdministrator\scoop\shims;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\.local\bin;C:\Users\ContainerAdministrator\.local;C:\Program Files\OpenSSL-Win64\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\AppData\Local\Pandoc\;C:\Users\ContainerAdministrator\.dotnet\tools;C:\Users\ContainerAdministrator\AppData\Roaming\Python\Python311\Scripts;C:\Users\ContainerAdministrator\.dotnet\tools"
 
-RUN iwr -useb get.sccop.sh | iex
+RUN iwr -useb get.scoop.sh | iex
 
 # Use Powershell instead of CMD
 SHELL ["pwsh", "-Command"]
@@ -71,5 +72,10 @@ SHELL ["pwsh", "-Command"]
 # Changed C:/azp to use the AZP_DIRECTORY for the work directory
 WORKDIR ${AZP_DIRECTORY}
 COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
+
+USER ContainerAdministrator
+
+RUN choco install -y sed
+USER ContainerUser
 
 CMD ["pwsh", "-file",  "start.ps1"]
