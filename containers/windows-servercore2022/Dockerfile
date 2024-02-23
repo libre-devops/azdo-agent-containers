@@ -52,8 +52,7 @@ RUN Set-ExecutionPolicy Unrestricted ;  \
     packer \
     trivy
 
-RUN choco install -y cygwin --params "/InstallDir:C:\Cygwin" ; \
-    choco install -y msys2 --params "/InstallDir:C:\Msys2"
+RUN choco install -y cygwin --params "/InstallDir:C:\Cygwin"
 
 # This can take a while, which is why its a separate step
 RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted ; \
