@@ -69,14 +69,7 @@ try
     Print-Header "3. Configuring Azure Pipelines agent..."
 
     pwsh -Command $configCmdPath --unattended `
-    --agent "$( if (Test-Path Env:AZP_AGENT_NAME)
-    {
-        ${Env:AZP_AGENT_NAME}
-    }
-    else
-    {
-        hostname
-    } )" `
+    --agent $AZP_AGENT_NAME `
     --url "$( ${Env:AZP_URL} )" `
     --auth PAT `
     --token "$( Get-Content ${Env:AZP_TOKEN_FILE} )" `

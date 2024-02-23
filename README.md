@@ -34,13 +34,14 @@ optimization, but these work for me. Here is some high level.
 - Linux Images used in the repo:
     - [RedHat 9 Universal Basic Image ](https://catalog.redhat.com/software/container-stacks/detail/5ec53f50ef29fd35586d9a56)
     - [Ubuntu 22.04](https://hub.docker.com/_/ubuntu)
+    - [Alpine](https://hub.docker.com/_/alpine)
 
 - Windows Image used in the repo:
     - [Windows Server 2022 LTSC](https://hub.docker.com/_/microsoft-windows-server/)
 
 - Agent Name is auto-generated for pool to avoid conflicts, in format:
-    - Linux: `azdo-lnx-agent-${{ddmmyyy}-${random_chars}`
-    - Windows: `azdo-win-agent-${ddmmyyyy}-${RANDOM_NUMBERS}`
+    - Linux: `azdo-${OS-NAME}-agent-${{ddmmyyy}-${random_chars}`
+    - Windows: `azdo-${OS-NAME}-agent-${ddmmyyyy}-${RANDOM_NUMBERS}`
 
 # Quickstart
 
@@ -54,107 +55,47 @@ docker run -it ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest \
 -e AZP_WORK="${AZP_WORK}"
 ```
 
-Or using podman in a startup script
-
-```shell
-#!/usr/bin/env bash
-
-REPO="ghcr.io"
-
-USER="libre-devops"
-IMAGE_NAME="azdo-agent-containers/rhel"
-TAGS=":latest"
-
-AZP_URL="https://dev.azure.com/example"
-AZP_TOKEN="example-pat-token"
-AZP_POOL="example-pool"
-AZP_WORK="_work"
-
-podman run -it \
-    -e AZP_URL="${AZP_URL}" \
-    -e AZP_TOKEN="${AZP_TOKEN}" \
-    -e AZP_POOL="${AZP_POOL}" \
-    -e AZP_WORK="${AZP_WORK}" \
-    "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
-```
-
 or minimally
 
 ```shell
-```shell
-docker run -it ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest \
+docker run -it \
 -e AZP_URL="${AZP_URL}" \
 -e AZP_TOKEN="${AZP_TOKEN}" \
-```
+ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest
 
 ```
 
 ## Windows
 
 ```powershell
-docker run -it ghcr.io/libre-devops/azdo-agent-winservercoreltsc2022:latest \
--e AZP_URL = "${AZP_URL
-}" \
--e AZP_TOKEN = "${AZP_TOKEN
-}" \
--e AZP_POOL = "${AZP_POOL
-}" \
--e AZP_WORK = "${AZP_WORK
-}"
-```
-
-Startup script
-
-```powershell
-
-#!/usr/bin/env pwsh
-
-$REPO = "ghcr.io"
-
-$USER = "libre-devops"
-$IMAGE_NAME = "azdo-agent-winsevercoreltsc2019"
-$TAGS = ":latest"
-
-$AZP_URL = "https://dev.azure.com/example"
-$AZP_TOKEN = "example-pat-token"
-$AZP_POOL = "example-pool"
-$AZP_WORK = "_work"
-
-docker run -it --rm `
-    -e AZP_URL = "${AZP_URL}" `
-    -e AZP_TOKEN = "${AZP_TOKEN}" `
-    -e AZP_POOL = "${AZP_POOL}" `
-    -e AZP_WORK = "${AZP_WORK}" `
-    "${REPO}/${USER}/${IMAGE_NAME}${TAGS}"
+docker run -it `
+-e AZP_URL = "${AZP_URL}" `
+-e AZP_TOKEN = "${AZP_TOKEN}" `
+-e AZP_POOL = "${AZP_POOL}" `
+-e AZP_WORK = "${AZP_WORK}" `
+ghcr.io/libre-devops/azdo-agent-containers/windows-servercore2022:latest 
 ```
 
 ## Podman-in-Podman
 
-Looking to run Podman containers within a container? The Linux containers in this repo support it!. To do this however,
-you do need to run the container in `--priviledged` mode. You can still run it as a standard user. Here is an example on
-how to run interactively
+Looking to run Podman containers within a container? The `rhel` and `default` containers in this repo support it!. To do this however,
+you do need to run the container in `--priviledged` mode and run the container user as root. You can still run the container itself as a standard user, its just the inside user that will need to be root. Here is an example on
+how to run:
 
 ```shell
-#!/usr/bin/env bash
+podman run -it --privileged -u root \
+-e AZP_URL="${AZP_URL}" \
+-e AZP_TOKEN="${AZP_TOKEN}" \
+-e AGENT_ALLOW_RUNASROOT=1 \
+ghcr.io/libre-devops/azdo-agent-containers/default:latest
+```
 
-REPO="ghcr.io"
-
-USER="libre-devops"
-IMAGE_NAME="azdo-agent-rhel"
-TAGS=":latest"
-
-AZP_URL="https://dev.azure.com/example"
-AZP_TOKEN="example-pat-token"
-AZP_POOL="example-pool"
-AZP_WORK="_work"
-
-podman run -it --rm --privileged -u root \
-    -e AZP_URL="${AZP_URL}" \
-    -e AZP_TOKEN="${AZP_TOKEN}" \
-    -e AZP_POOL="${AZP_POOL}" \
-    -e AZP_WORK="${AZP_WORK}" \
-    "${REPO}/${USER}/${IMAGE_NAME}${TAGS} \
-    bash"
+```shell
+podman run -it --privileged -u root \
+-e AZP_URL="${AZP_URL}" \
+-e AZP_TOKEN="${AZP_TOKEN}" \
+-e AGENT_ALLOW_RUNASROOT=1 \
+ghcr.io/libre-devops/azdo-agent-containers/rhel:latest
 ```
 
 And then inside the container:
@@ -181,32 +122,44 @@ podman run -it --privileged -u root \
     ghcr.io/libre-devops/azdo-agent-containers/rhel:latest
 ```
 
+## As Kubernetes
+
+### Create a kube-azdo-creds.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azdo-agents-creds
+type: Opaque
+data:
+  azdo-token: <base64-encoded-token-without-newline>
+  azdo-url: <base64-encoded-url-without-newline>
+```
+### Run kubectl
+```shell
+kubectl apply -f azdo-agents-creds.yaml && \
+kubectl apply -f azdo-agents-deployment.yaml
+```
+
+## As Kubernetes in Podman
+
+Run the helper script
+
+```shell
+# Ensure the script stops if an error occurs
+set -e
+
+# Pull the necessary pause image
+podman pull k8s.gcr.io/pause:3.5
+
+podman kube play kube-azdo-creds.yaml && \
+podman play kube podman-kube-deployment.yaml
+```
 
 Alternatively, you can fork the repo and edit the pipelines to include your secrets as build args into the template!
-
-## Info
-
-- On Linux:
-    - Various packages and updates needed.
-    - Python - Latest version with argument at pipeline level for roll-back options - This is for Azure-CLI which I wish
-      to be part of ALL of my agents
-    - Azure-CLI - Installed via global pip3
-    - PowerShell 7 - With all Azure modules downloaded (these are around 2GB in size, which is why its part of the base)
-    - The script which will execute on `CMD` in the container, which will fetch the latest Azure Pipelines agent on
-      execution
-- On Windows:
-    - Chocolatey and Scoop installed
-    - Python - Latest version from chocolatey
-    - Azure-CLI - Latest version from chocolatey
-    - Git - Latest from chocolatey (and will also install Bash)
-    - 7-Zip
-    - Scoop "extras" bucket
-
-Some others notes:
 
 We do not own or give any explicit license agreements which may be contained with the software in these images, but have
 given images for examples and published them to allow experiments :scientist:. The images are as follows:
 
-- Image - Standard Image with Python, PowerShell and Azure-CLI, examples in this
-  repo:  `rhel`, `ubuntu`, `winseverltsc2019`, `winseverltsc2022`
-- All images are tagged as latest and available in `ghcr.io/libre-devops`
+- All images are tagged as latest and YYYY-MM and available in `ghcr.io/libre-devops/azdo-agent-containers/${name}`
+- For legacy reasons, the image `ghcr.io/libre-devops/azdo-agent-rhel:latest` (also tagged `ghcr.io/libre-devops/azdo-agent-rhel:april-2023`) is kept for legacy users. Please use an alternative image for updates

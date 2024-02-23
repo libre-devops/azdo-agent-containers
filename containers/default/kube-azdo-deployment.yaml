@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azdo-agents-deployment
+  labels:
+    app: azdo-agents
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: azdo-agents
+  template:
+    metadata:
+      labels:
+        app: azdo-agents
+    spec:
+      containers:
+        - image: ghcr.io/libre-devops/azdo-agent-containers/default:latest
+          name: agent
+          env:
+            - name: AZP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: azdo-agents-creds
+                  key: azdo-token
+            - name: AZP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: azdo-agents-creds
+                  key: azdo-url
+          resources: { }
+      restartPolicy: Always

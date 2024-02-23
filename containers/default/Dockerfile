@@ -189,9 +189,20 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sudo apt-get update && \
-    sudo apt-get install podman podman-docker fuse-overlayfs -y && \
-    apt-get autoremove -y && \
+#RUN sudo apt-get update && \
+#    sudo apt-get install podman podman-docker fuse-overlayfs -y && \
+#    apt-get autoremove -y && \
+#    apt-get clean && \
+#    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN apt-get update && apt-get install -y curl gpg lsb-release && \
+    . /etc/os-release && \
+    ubuntu_version=${VERSION_ID} && \
+    key_url="https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" && \
+    sources_url="https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}" && \
+    echo "deb $sources_url/ /" | tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list && \
+    curl -fsSL $key_url | gpg --dearmor | tee /etc/apt/trusted.gpg.d/devel_kubic_libcontainers_unstable.gpg > /dev/null && \
+    apt-get update && apt-get install -y podman podman-docker fuse-overlayfs &&  apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
