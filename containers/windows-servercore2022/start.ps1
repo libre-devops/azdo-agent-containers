@@ -63,6 +63,7 @@ $wc.DownloadFile($packageUrl, $AgentPath)
 
 Expand-Archive -Path $AgentPath -DestinationPath "C:\agent"
 $configCmdPath = Join-Path -Path "C:\agent" -ChildPath "config.cmd"
+$runCmdPath = Join-Path -Path "C:\agent" -ChildPath "run.cmd"
 
 try
 {
@@ -93,7 +94,7 @@ try
 
     Print-Header "4. Running Azure Pipelines agent..."
 
-    .\run.cmd
+    pwsh -Command $runCmdPath
 }
 finally
 {
