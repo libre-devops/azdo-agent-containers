@@ -28,7 +28,7 @@ ENV AZP_WORK=${AZP_WORK}
 ENV AZP_DIRECTORY=${AZP_DIRECTORY}
 
 # Corrected PATH to dynamically use the user's home directory for scoop shims
-ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Python;C:\Python\Scripts;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims"
+ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Python;C:\Python\Scripts;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\scoop\apps;C:\Users\ContainerUser\scoop\apps\nvm\current;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\go\current"
 
 # Use Powershell instead of CMD
 SHELL ["powershell", "-Command"]
@@ -63,6 +63,7 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
     git ; \
     C:\Users\ContainerUser\scoop\apps\git\current\install-file-associations.reg ; \
     scoop bucket add extras ; \
+    scoop install vcredist2022 ; \
     scoop install \
     curl \
     dark \
@@ -79,8 +80,6 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
     lessmsi \
     sudo \
     python \
-    rust \
-    ruby \
     sed \
     which \
     zip
