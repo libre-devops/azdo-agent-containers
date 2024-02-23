@@ -31,8 +31,7 @@ ENV AZP_DIRECTORY=${AZP_DIRECTORY}
 SHELL ["powershell", "-Command"]
 
 USER ContainerAdministrator
-ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\scoop\apps;C:\Users\ContainerUser\scoop\apps\nvm\current;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\go\current;C:\Users\ContainerUser\AppData\Roaming;C:\Users\ContainerUser\AppData\Roaming\Python\Python312\Scripts"
-
+ENV PATH="C:\Msys2;C:\Cygwin;C:\Program Files\PowerShell\7;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;C:\Python311\Scripts;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerUser\AppData\Roaming\Python\Python311\Scripts;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\Go\bin;C:\Program Files\PowerShell\7\;C:\Users\ContainerUser\go\bin;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\.local\bin;C:\Users\ContainerUser\.local;C:\Program Files\OpenSSL-Win64\bin;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Pandoc\;C:\Users\ContainerUser\.dotnet\tools;C:\Users\ContainerUser\AppData\Roaming\Python\Python311\Scripts;C:\Users\ContainerUser\.dotnet\tools;C:\Program Files\PowerShell\7;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;C:\Python311\Scripts;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Roaming\Python\Python311\Scripts;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\Go\bin;C:\Program Files\PowerShell\7\;C:\Users\ContainerAdministrator\go\bin;C:\Users\ContainerAdministrator\scoop\apps\python\current\Scripts;C:\Users\ContainerAdministrator\scoop\apps\python\current;C:\Users\ContainerAdministrator\scoop\shims;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\.local\bin;C:\Users\ContainerAdministrator\.local;C:\Program Files\OpenSSL-Win64\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\AppData\Local\Pandoc\;C:\Users\ContainerAdministrator\.dotnet\tools;C:\Users\ContainerAdministrator\AppData\Roaming\Python\Python311\Scripts;C:\Users\ContainerAdministrator\.dotnet\tools"
 RUN powershell /tls-fix.ps1 ; Remove-Item -Force /tls-fix.ps1
 
 # Set Unrestricted Policy & Install chocolatey
@@ -42,7 +41,19 @@ RUN Set-ExecutionPolicy Unrestricted ;  \
     sysinternals \
     powershell-core \
     azure-cli \
+    git \
+    7zip \
+    sudo \
+    python \
+    jq \
+    gh \
+    golang \
+    terraform \
+    packer \
     trivy
+
+RUN choco install -y cygwin --params "/InstallDir:C:\Cygwin" ; \
+    choco install -y msys2 --params "/InstallDir:C:\Msys2"
 
 # This can take a while, which is why its a separate step
 RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted ; \
@@ -51,48 +62,15 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
     pwsh -Command Install-Module -Name Pester -Force -AllowClobber -Scope AllUsers -Repository PSGallery
 
 USER ContainerUser
-ENV PATH="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Program Files\PowerShell\7;C:\Users\ContainerUser;C:\Users\ContainerUser\scoop;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\scoop\apps;C:\Users\ContainerUser\scoop\apps\nvm\current;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\go\current;C:\Users\ContainerUser\AppData\Roaming;C:\Users\ContainerUser\AppData\Roaming\Python\Python312\Scripts"
-COPY configure-path.ps1 ${AZP_DIRECTORY}/configure-path.ps1
+ENV PATH="C:\Msys2;C:\Cygwin;C:\Program Files\PowerShell\7;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;C:\Python311\Scripts;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerUser\AppData\Roaming\Python\Python311\Scripts;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\Go\bin;C:\Program Files\PowerShell\7\;C:\Users\ContainerUser\go\bin;C:\Users\ContainerUser\scoop\apps\python\current\Scripts;C:\Users\ContainerUser\scoop\apps\python\current;C:\Users\ContainerUser\scoop\shims;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\.local\bin;C:\Users\ContainerUser\.local;C:\Program Files\OpenSSL-Win64\bin;C:\Users\ContainerUser\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerUser\AppData\Local\Pandoc\;C:\Users\ContainerUser\.dotnet\tools;C:\Users\ContainerUser\AppData\Roaming\Python\Python311\Scripts;C:\Users\ContainerUser\.dotnet\tools;C:\Program Files\PowerShell\7;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;C:\Python311\Scripts;C:\Python311\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ProgramData\chocolatey\bin;C:\Users\ContainerAdministrator\AppData\Roaming\Python\Python311\Scripts;C:\Program Files\Git\cmd;C:\Program Files\GitHub CLI\;C:\Program Files\Go\bin;C:\Program Files\PowerShell\7\;C:\Users\ContainerAdministrator\go\bin;C:\Users\ContainerAdministrator\scoop\apps\python\current\Scripts;C:\Users\ContainerAdministrator\scoop\apps\python\current;C:\Users\ContainerAdministrator\scoop\shims;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\.local\bin;C:\Users\ContainerAdministrator\.local;C:\Program Files\OpenSSL-Win64\bin;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps;C:\Users\ContainerAdministrator\AppData\Local\Pandoc\;C:\Users\ContainerAdministrator\.dotnet\tools;C:\Users\ContainerAdministrator\AppData\Roaming\Python\Python311\Scripts;C:\Users\ContainerAdministrator\.dotnet\tools"
 
+RUN iwr -useb get.sccop.sh | iex
 
 # Use Powershell instead of CMD
 SHELL ["pwsh", "-Command"]
-
-RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | iex ; \
-    scoop install \
-    7zip \
-    git ; \
-    C:\Users\ContainerUser\scoop\apps\git\current\install-file-associations.reg ; \
-    scoop bucket add extras ; \
-    scoop install vcredist2022 ; \
-    scoop install \
-    curl \
-    dark \
-    grep \
-    jq \
-    dotnet-sdk \
-    go \
-    gawk \
-    nano \
-    nvm \
-    terraform \
-    packer \
-    openssl \
-    lessmsi \
-    sudo \
-    python \
-    sed \
-    which \
-    zip ; \
-    scoop bucket add java ; \
-    scoop install microsoft-jdk ; \
-    pip3 install --user \
-    terraform-compliance \
-    checkov \
-    black
 
 # Changed C:/azp to use the AZP_DIRECTORY for the work directory
 WORKDIR ${AZP_DIRECTORY}
 COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
 
-CMD pwsh -Command "& '${env:AZP_DIRECTORY}\start.ps1'"
+CMD ["pwsh", "-file",  "start.ps1"]
