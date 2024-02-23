@@ -70,6 +70,7 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
     packer \
     openssl \
     lessmsi \
+    sudo \
     python \
     rust \
     ruby \
@@ -78,8 +79,7 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iwr -useb get.scoop.sh | i
     which \
     zip ; \
     scoop bucket add java ; \
-    scoop install microsoft-jdk ; \
-    nvm install lts
+    scoop install microsoft-jdk
 
 # Changed C:/azp to use the AZP_DIRECTORY for the work directory
 WORKDIR ${AZP_DIRECTORY}
@@ -92,6 +92,7 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
     pwsh -Command Install-Module -Name Pester -Force -AllowClobber -Scope AllUsers -Repository PSGallery
 
 RUN choco install -y trivy ; \
+    nvm install --lts ; \
     pip3 install \
     terraform-compliance \
     checkov \
