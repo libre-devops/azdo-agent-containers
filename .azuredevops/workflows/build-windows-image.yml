@@ -1,0 +1,74 @@
+name: $(Build.DefinitionName)-$(date:yyyyMMdd)$(rev:.r)
+
+trigger: none # Disable automatic triggers
+
+parameters:
+  - name: working_directory
+    displayName: What working directory should be passed to the script
+    type: string
+    default: "containers/windows-servercore2022"
+  - name: docker_image_name
+    displayName: Docker Image Name
+    type: string
+    default: "azdo-agent-containers/windows-servercore2022"
+  - name: enable_debug_mode
+    displayName: Whether debug mode is enabled
+    type: boolean
+    default: "false"
+  - name: registry_url
+    displayName: The URL of the registry
+    type: string
+    default: "ghcr.io"
+  - name: docker_file_name
+    displayName: The dockerfile name
+    type: string
+    default: "Dockerfile"
+  - name: push_docker_image
+    displayName: Whether to push the docker image
+    type: boolean
+    default: "true"
+  - name: pool_name
+    displayName: "The name of the pool to use"
+    type: string
+    values:
+      - "Default"
+      - "Azure Pipeline"
+      - "lbd-linux-pool"
+    default: "Default"
+
+  - name: variable_group_name
+    type: string
+    default: "kv-lbd-uks-prd-mgmt-01"
+    displayName: "Enter the variable group which contains your authentication information"
+
+variables:
+  - group: ${{ parameters.variable_group_name }}
+
+
+jobs:
+  - job: RunScript
+    displayName: 'Run Script'
+    pool: ${{ parameters.pool_name }}
+    workspace:
+      clean: all
+    steps:
+      - checkout: self
+
+      - pwsh: |
+          $orgName, $repoName = "$(Build.Repository.Name)" -split '/', 2
+          echo "##vso[task.setvariable variable=githubOrg]$orgName"
+        displayName: 'Set GitHub Organization Name as Variable'
+
+      - pwsh: |
+          $workingDirectory = Join-Path -Path $(System.DefaultWorkingDirectory) -ChildPath "${{ parameters.working_directory }}"
+          .\Run-Docker.ps1 `
+          -WorkingDirectory $workingDirectory `
+          -PushDockerImage ${{ parameters.push_docker_image }} `
+          -DebugMode ${{ parameters.enable_debug_mode }} `
+          -DockerImageName ${{ parameters.docker_image_name }} `
+          -DockerFileName ${{ parameters.docker_file_name }} `
+          -RegistryUsername $(RegistryUsername) `
+          -RegistryPassword $(RegistryPassword) `
+          -ImageOrg $(githubOrg)
+        displayName: "Build Container"
+
