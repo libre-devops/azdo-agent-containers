@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:jammy
 
 LABEL org.opencontainers.image.title=ubuntu
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
