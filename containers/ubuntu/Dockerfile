@@ -56,6 +56,7 @@ RUN useradd -ms /bin/bash ${NORMAL_USER} && \
     ca-certificates \
     curl \
     dos2unix \
+    dotnet-sdk-8.0 \
     gcc \
     gnupg \
     gnupg2 \
