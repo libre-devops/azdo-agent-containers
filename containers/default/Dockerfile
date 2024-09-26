@@ -263,5 +263,7 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${NORMAL_USER}/.bashrc && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew install gcc && \
-    brew install trivy
+    brew install trivy && \
+    brew tap azure/functions && \
+    brew install azure-functions-core-tools@4
 
