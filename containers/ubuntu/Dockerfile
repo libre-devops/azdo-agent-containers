@@ -104,6 +104,10 @@ RUN curl -sSLO https://packages.microsoft.com/config/ubuntu/$(grep -oP '(?<=^DIS
     apt-get install -y powershell && \
     ln -s /usr/bin/pwsh /usr/bin/powershell
 
+RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 && \
+    chmod +x ./bicep && \
+    sudo mv ./bicep /usr/local/bin/bicep
+
 #Install Azure Modules for Powershell - This can take a while, so setting as final step to shorten potential rebuilds
 RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted && \
     pwsh -Command Install-Module -Name Az -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
@@ -160,6 +164,7 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew install gcc && \
     brew install trivy && \
+    brew install pipx && \
     brew tap azure/functions && \
     brew install azure-functions-core-tools@4
 
