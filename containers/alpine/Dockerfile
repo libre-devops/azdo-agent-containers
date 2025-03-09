@@ -59,7 +59,6 @@ RUN adduser -s /bin/bash -D -h /home/${NORMAL_USER} ${NORMAL_USER} && \
     nano \
     ncurses-dev \
     openssl-dev \
-    openssl1.1-compat@edge \
     readline-dev \
     sqlite-dev \
     sudo \
@@ -126,15 +125,11 @@ USER ${NORMAL_USER}
 WORKDIR /home/${NORMAL_USER}
 
 RUN tenv tf install latest --verbose && \
-    tenv tf use latest --verbose && \
-    tenv tofu install latest --verbose && \
-    tenv tofu use latest --verbose
+    tenv tf use latest --verbose
+
 
 RUN pip3 install --user \
-    pipenv \
-    virtualenv \
     terraform-compliance \
-    checkov \
     pywinrm
 
 # Install Azure-CLI as seperate step for cacheing speed
