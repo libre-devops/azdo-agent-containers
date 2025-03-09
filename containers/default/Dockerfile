@@ -251,7 +251,6 @@ RUN pip3 install --user \
     pipenv \
     virtualenv \
     terraform-compliance \
-    checkov \
     pywinrm \
     podman-compose
 
