@@ -137,7 +137,7 @@ RUN LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/r
 
 # Install Packer Env
 RUN git clone https://github.com/iamhsa/pkenv.git /home/${NORMAL_USER}/.pkenv && \
-    PACKER_LATEST_URL=$(curl -sL https://releases.hashicorp.com/packer/index.json | jq -r '.versions[].builds[].url' | egrep -v 'rc|beta|alpha' | egrep 'linux.*amd64'  | tail -1) && \
+    PACKER_LATEST_URL=$(curl -sL https://releases.hashicorp.com/packer/index.json | jq -r '.versions[].builds[] | select(.arch=="amd64" and .os=="linux" and (.name|test("alpha|beta|rc")==false)) | .url' | sort -V | tail -1) && \
     PACKER_LATEST_VERSION=$(echo "$PACKER_LATEST_URL" | awk -F '/' '{print $6}' | sed 's/packer_//' | sed 's/_linux_amd64.zip//') && \
     pkenv install ${PACKER_LATEST_VERSION} && \
     pkenv use ${PACKER_LATEST_VERSION}
@@ -264,4 +264,5 @@ RUN pipx install --include-deps checkov && \
     pipx install --include-deps virtualenv && \
     pipx install --include-deps terraform-compliance && \
     pipx install --include-deps pywinrm && \
-    pipx install --include-deps podman-compose
+    pipx install --include-deps podman-compose && \
+    pipx install --include-deps ansible
