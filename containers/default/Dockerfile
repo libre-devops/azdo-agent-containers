@@ -114,7 +114,8 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/${NORMAL_USER}/.pyenv && 
     pyenvLatestStable=$(pyenv install --list | grep -v - | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | tail -1) && \
     pyenv install $pyenvLatestStable && \
     pyenv global $pyenvLatestStable && \
-    pip install --upgrade pip
+    pip install --upgrade pip && \
+    pip install pipx
 
 # Install PowerShell
 RUN curl -sSLO https://packages.microsoft.com/config/ubuntu/$(grep -oP '(?<=^DISTRIB_RELEASE=).+' /etc/lsb-release | tr -d '"')/packages-microsoft-prod.deb && \
@@ -247,12 +248,12 @@ RUN tenv tf install latest --verbose && \
     tenv tofu install latest --verbose && \
     tenv tofu use latest --verbose
 
-RUN pip3 install --user \
-    pipenv \
-    virtualenv \
-    terraform-compliance \
-    pywinrm \
-    podman-compose
+RUN pipx install && \
+    pipx install pipenv && \
+    pipx install virtualenv && \
+    pipx install terraform-compliance && \
+    pipx install pywinrm && \
+    pipx install podman-compose
 
 # Install Azure-CLI as seperate step for cacheing speed
 RUN pip3 install --user azure-cli
