@@ -248,16 +248,6 @@ RUN tenv tf install latest --verbose && \
     tenv tofu install latest --verbose && \
     tenv tofu use latest --verbose
 
-RUN pipx install && \
-    pipx install pipenv && \
-    pipx install virtualenv && \
-    pipx install terraform-compliance && \
-    pipx install pywinrm && \
-    pipx install podman-compose
-
-# Install Azure-CLI as seperate step for cacheing speed
-RUN pip3 install --user azure-cli
-
 # Install homebrew and gcc per recomendation as well a PHP
 RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${NORMAL_USER}/.bashrc && \
@@ -265,6 +255,13 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     brew install gcc && \
     brew install trivy && \
     brew install pipx && \
+    brew install azure-cli && \
     brew tap azure/functions && \
     brew install azure-functions-core-tools@4
 
+RUN pipx install checkov && \
+    pipx install pipenv && \
+    pipx install virtualenv && \
+    pipx install terraform-compliance && \
+    pipx install pywinrm && \
+    pipx install podman-compose
