@@ -56,7 +56,6 @@ RUN adduser -s /bin/bash -D -h /home/${NORMAL_USER} ${NORMAL_USER} && \
     linux-headers \
     ncurses-dev \
     openssl-dev \
-    openssl1.1-compat@edge \
     readline-dev \
     sqlite-dev \
     sudo \

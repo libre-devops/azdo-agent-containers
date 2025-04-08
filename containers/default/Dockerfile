@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM ubuntu:latest
 
 LABEL org.opencontainers.image.title=ubuntu
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
@@ -251,7 +251,6 @@ RUN pip3 install --user \
     pipenv \
     virtualenv \
     terraform-compliance \
-    checkov \
     pywinrm \
     podman-compose
 
