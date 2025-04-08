@@ -27,9 +27,9 @@ on:
         description: 'Docker file name?'
         default: "Dockerfile"
       push_docker_image:
-        type: boolean
+        type: string
         description: 'Push docker image?'
-        default: true
+        default: 'true'
 
 jobs:
   run-script:
