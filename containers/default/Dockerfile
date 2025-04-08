@@ -259,9 +259,9 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     brew tap azure/functions && \
     brew install azure-functions-core-tools@4
 
-RUN pipx install checkov && \
-    pipx install pipenv && \
-    pipx install virtualenv && \
-    pipx install terraform-compliance && \
-    pipx install pywinrm && \
-    pipx install podman-compose
+RUN pipx install --include-deps checkov && \
+    pipx install --include-deps pipenv && \
+    pipx install --include-deps virtualenv && \
+    pipx install --include-deps terraform-compliance && \
+    pipx install --include-deps pywinrm && \
+    pipx install --include-deps podman-compose
