@@ -190,12 +190,6 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-#RUN sudo apt-get update && \
-#    sudo apt-get install podman podman-docker fuse-overlayfs -y && \
-#    apt-get autoremove -y && \
-#    apt-get clean && \
-#    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 RUN apt-get update && apt-get install -y curl gpg lsb-release && \
     . /etc/os-release && \
     ubuntu_version=${VERSION_ID} && \
@@ -257,7 +251,10 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     brew install pipx && \
     brew install azure-cli && \
     brew tap azure/functions && \
-    brew install azure-functions-core-tools@4
+    brew install azure-functions-core-tools@4 && \
+    brew install gh && \
+    brew install helm && \
+    brew install kubernetes-cli
 
 RUN pipx install --include-deps checkov && \
     pipx install --include-deps pipenv && \
