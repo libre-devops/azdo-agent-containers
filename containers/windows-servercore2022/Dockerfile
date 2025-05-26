@@ -38,7 +38,6 @@ RUN powershell /tls-fix.ps1 ; Remove-Item -Force /tls-fix.ps1
 RUN Set-ExecutionPolicy Unrestricted ;  \
     Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')) ; \
     choco install -y \
-    sysinternals \
     powershell-core \
     azure-cli \
     bicep \
