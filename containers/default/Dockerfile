@@ -164,9 +164,6 @@ RUN git clone https://github.com/syndbg/goenv.git ~/.goenv && \
     goenv install ${GO_LATEST_VERSION} && \
     goenv global ${GO_LATEST_VERSION}
 
-# Install Dotnet SDK non-interactively
-RUN curl -L dotnet-install.sh https://dot.net/v1/dotnet-install.sh | bash
-
 # Install Rust non-interactively
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 
