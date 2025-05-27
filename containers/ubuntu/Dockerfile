@@ -166,6 +166,7 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     brew install gcc && \
     brew install trivy && \
     brew install pipx && \
+    brew install checkov && \
     brew tap azure/functions && \
     brew install azure-functions-core-tools@4
 
