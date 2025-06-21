@@ -3,51 +3,51 @@ name: Run Docker – Minimal
 # TRIGGERS
 ################################################################################
 on:
-  # 1) build automatically when any Dockerfile (or helper script) is pushed to main
   push:
     branches: [ main ]
-    paths:    [ '**/*Dockerfile', '**/*start.sh', '**/*start.ps1' ]
+    paths:
+      - 'containers/minimal/**Dockerfile'
+      - 'containers/minimal/**start.sh'
+      - 'containers/minimal/**start.ps1'
 
-  # 2) build automatically at 00:00 UTC on the 1-st of every month
   schedule:
     - cron: '0 0 1 * *'
 
-  # 3) manual run
   workflow_dispatch:
     inputs:
       working_directory:
-        description: 'Working directory passed to the script'
+        description: 'Folder the script should cd into'
         type: string
         default: 'containers/minimal'
 
       build_context:
         description: 'Docker build context'
         type: string
-        default: 'github_workspace'
+        default: 'github_workspace'          # ← back to repo-root
+
+      docker_file_name:
+        description: 'Path to the Dockerfile (relative to build-context)'
+        type: string
+        default: 'containers/minimal/Dockerfile'   # ← key change
 
       docker_image_name:
-        description: 'Docker image name (repo/name)'
+        description: 'Image name (repo/name)'
         type: string
         default: 'azdo-agent-containers/minimal'
-
-      enable_debug_mode:
-        description: 'Enable -DebugMode in the script'
-        type: boolean
-        default: true          # ⟵ same as the old workflow
 
       registry_url:
         description: 'Container registry URL'
         type: string
         default: 'ghcr.io'
 
-      docker_file_name:
-        description: 'Dockerfile name'
-        type: string
-        default: 'Dockerfile'
+      enable_debug_mode:
+        description: 'Pass -DebugMode to the script'
+        type: boolean
+        default: true
 
       push_docker_image:
-        description: 'Push image after build?'
-        type: string            # Run-Docker.ps1 expects literal “true/false”
+        description: 'Push image after build?  (true/false string)'
+        type: string
         default: 'true'
 
 ################################################################################
@@ -55,43 +55,40 @@ on:
 ################################################################################
 jobs:
   run-script:
-    name: Run Build Script
+    name: Build & (optionally) push image
     runs-on: ubuntu-latest
 
     defaults:
       run:
         shell: pwsh
 
-    # Map inputs (or their defaults) to environment variables so that the
-    # PowerShell in the step can reference them uniformly.
     env:
-      WD_INPUT:      ${{ github.event.inputs.working_directory  || 'containers/minimal' }}
-      CTX_INPUT:     ${{ github.event.inputs.build_context      || 'github_workspace'    }}
-      IMG_INPUT:     ${{ github.event.inputs.docker_image_name  || 'azdo-agent-containers/minimal' }}
-      DEBUG_INPUT:   ${{ github.event.inputs.enable_debug_mode  || 'true'  }}
-      PUSH_INPUT:    ${{ github.event.inputs.push_docker_image  || 'true'  }}
-      DFNAME_INPUT:  ${{ github.event.inputs.docker_file_name   || 'Dockerfile' }}
-      REGURL_INPUT:  ${{ github.event.inputs.registry_url       || 'ghcr.io' }}
+      IN_WD:     ${{ github.event.inputs.working_directory  || 'containers/minimal' }}
+      IN_CTX:    ${{ github.event.inputs.build_context      || 'github_workspace'   }}
+      IN_DF:     ${{ github.event.inputs.docker_file_name   || 'containers/minimal/Dockerfile' }}
+      IN_IMG:    ${{ github.event.inputs.docker_image_name  || 'azdo-agent-containers/minimal' }}
+      IN_REG:    ${{ github.event.inputs.registry_url       || 'ghcr.io' }}
+      IN_DBG:    ${{ github.event.inputs.enable_debug_mode  || 'true' }}
+      IN_PUSH:   ${{ github.event.inputs.push_docker_image  || 'true'  }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build & (optionally) push image
+      - name: Build (and optionally push)
         run: |
-          $repoRoot   = '${{ github.workspace }}'
+          $repoRoot = '${{ github.workspace }}'
 
-          # Resolve working directory and build context
-          $workingDir  = if ($Env:WD_INPUT  -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:WD_INPUT  }
-          $contextPath = if ($Env:CTX_INPUT -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:CTX_INPUT }
+          $workingDir  = if ($Env:IN_WD  -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_WD  }
+          $contextPath = if ($Env:IN_CTX -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_CTX }
 
           ./Run-Docker.ps1 `
             -WorkingDirectory $workingDir `
             -BuildContext     $contextPath `
-            -PushDockerImage  $Env:PUSH_INPUT `
-            -DebugMode        $Env:DEBUG_INPUT `
-            -DockerImageName  $Env:IMG_INPUT `
-            -DockerFileName   $Env:DFNAME_INPUT `
-            -RegistryUrl      $Env:REGURL_INPUT `
+            -DockerFileName   $Env:IN_DF `
+            -DockerImageName  $Env:IN_IMG `
+            -RegistryUrl      $Env:IN_REG `
             -RegistryUsername '${{ secrets.RegistryUsername }}' `
             -RegistryPassword '${{ secrets.RegistryPassword }}' `
-            -ImageOrg         '${{ github.repository_owner }}'
+            -ImageOrg         '${{ github.repository_owner }}' `
+            -PushDockerImage  $Env:IN_PUSH `
+            -DebugMode        $Env:IN_DBG
