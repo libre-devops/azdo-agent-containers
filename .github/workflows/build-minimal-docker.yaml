@@ -8,7 +8,7 @@ on:
     paths:
       - 'containers/minimal/**Dockerfile'
       - 'containers/minimal/**start.sh'
-      - 'containers/minimal/**start.ps1'
+      - 'containers/minimal/**env.sh'
 
   schedule:
     - cron: '0 0 1 * *'
