@@ -68,7 +68,7 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     chown -R ${NORMAL_USER}:${NORMAL_USER} /home/${NORMAL_USER}
 
 COPY start.sh /home/${NORMAL_USER}/start.sh
-COPY ./env.sh /home/${NORMAL_USER}/env.sh
+COPY env.sh /home/${NORMAL_USER}/env.sh
 RUN chmod +x /home/${NORMAL_USER}/start.sh && \
     chmod +x /home/${NORMAL_USER}/env.sh && \
     chown -R "${NORMAL_USER}:${NORMAL_USER}" /home/${NORMAL_USER}
