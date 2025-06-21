@@ -23,7 +23,7 @@ on:
       build_context:
         description: 'Docker build context'
         type: string
-        default: 'github_workspace'          # token → repo root
+        default: 'github_workspace'
 
       docker_file_name:
         description: 'Path to the Dockerfile (relative to build-context)'
@@ -34,11 +34,6 @@ on:
         description: 'Image name (repo/name)'
         type: string
         default: 'azdo-agent-containers/minimal'
-
-      registry_url:
-        description: 'Container registry URL'
-        type: string
-        default: 'ghcr.io'
 
       enable_debug_mode:
         description: 'Pass -DebugMode to the script'
@@ -58,7 +53,7 @@ jobs:
     name: Build & (optionally) push image
     runs-on: ubuntu-latest
 
-    # Grant the automatic GITHUB_TOKEN permission to push to GHCR
+    # ➊ allow GITHUB_TOKEN to push to GHCR
     permissions:
       contents: read
       packages: write
@@ -68,14 +63,13 @@ jobs:
         shell: pwsh
 
     ########################################
-    # 1.  Resolve inputs → env variables   #
+    # 1.  Resolve inputs → env vars        #
     ########################################
     env:
       IN_WD:   ${{ github.event.inputs.working_directory  || 'containers/minimal' }}
       IN_CTX:  ${{ github.event.inputs.build_context      || 'github_workspace'   }}
       IN_DF:   ${{ github.event.inputs.docker_file_name   || 'containers/minimal/Dockerfile' }}
       IN_IMG:  ${{ github.event.inputs.docker_image_name  || 'azdo-agent-containers/minimal' }}
-      IN_REG:  ${{ github.event.inputs.registry_url       || 'ghcr.io' }}
       IN_DBG:  ${{ github.event.inputs.enable_debug_mode  || 'true' }}
       IN_PUSH: ${{ github.event.inputs.push_docker_image  || 'true'  }}
 
@@ -87,10 +81,9 @@ jobs:
 
       - name: Build (and optionally push)
         run: |
-          # Absolute repo root
           $repoRoot = '${{ github.workspace }}'
 
-          # Resolve working directory & build context
+          # working directory & build context
           $workingDir  = if ($Env:IN_WD  -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_WD  }
           $contextPath = if ($Env:IN_CTX -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_CTX }
 
@@ -99,7 +92,7 @@ jobs:
             -BuildContext     $contextPath `
             -DockerFileName   $Env:IN_DF `
             -DockerImageName  $Env:IN_IMG `
-            -RegistryUrl      $Env:IN_REG `
+            -RegistryUrl      'ghcr.io' `                  
             -RegistryUsername '${{ github.actor }}' `         
             -RegistryPassword '${{ secrets.GITHUB_TOKEN }}' `
             -ImageOrg         '${{ github.repository_owner }}' `
