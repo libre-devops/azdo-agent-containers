@@ -23,12 +23,12 @@ on:
       build_context:
         description: 'Docker build context'
         type: string
-        default: 'github_workspace'          # ← back to repo-root
+        default: 'github_workspace'          # token → repo root
 
       docker_file_name:
         description: 'Path to the Dockerfile (relative to build-context)'
         type: string
-        default: 'containers/minimal/Dockerfile'   # ← key change
+        default: 'containers/minimal/Dockerfile'
 
       docker_image_name:
         description: 'Image name (repo/name)'
@@ -58,26 +58,39 @@ jobs:
     name: Build & (optionally) push image
     runs-on: ubuntu-latest
 
+    # Grant the automatic GITHUB_TOKEN permission to push to GHCR
+    permissions:
+      contents: read
+      packages: write
+
     defaults:
       run:
         shell: pwsh
 
+    ########################################
+    # 1.  Resolve inputs → env variables   #
+    ########################################
     env:
-      IN_WD:     ${{ github.event.inputs.working_directory  || 'containers/minimal' }}
-      IN_CTX:    ${{ github.event.inputs.build_context      || 'github_workspace'   }}
-      IN_DF:     ${{ github.event.inputs.docker_file_name   || 'containers/minimal/Dockerfile' }}
-      IN_IMG:    ${{ github.event.inputs.docker_image_name  || 'azdo-agent-containers/minimal' }}
-      IN_REG:    ${{ github.event.inputs.registry_url       || 'ghcr.io' }}
-      IN_DBG:    ${{ github.event.inputs.enable_debug_mode  || 'true' }}
-      IN_PUSH:   ${{ github.event.inputs.push_docker_image  || 'true'  }}
+      IN_WD:   ${{ github.event.inputs.working_directory  || 'containers/minimal' }}
+      IN_CTX:  ${{ github.event.inputs.build_context      || 'github_workspace'   }}
+      IN_DF:   ${{ github.event.inputs.docker_file_name   || 'containers/minimal/Dockerfile' }}
+      IN_IMG:  ${{ github.event.inputs.docker_image_name  || 'azdo-agent-containers/minimal' }}
+      IN_REG:  ${{ github.event.inputs.registry_url       || 'ghcr.io' }}
+      IN_DBG:  ${{ github.event.inputs.enable_debug_mode  || 'true' }}
+      IN_PUSH: ${{ github.event.inputs.push_docker_image  || 'true'  }}
 
+    ########################################
+    # 2.  Steps                            #
+    ########################################
     steps:
       - uses: actions/checkout@v3
 
       - name: Build (and optionally push)
         run: |
+          # Absolute repo root
           $repoRoot = '${{ github.workspace }}'
 
+          # Resolve working directory & build context
           $workingDir  = if ($Env:IN_WD  -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_WD  }
           $contextPath = if ($Env:IN_CTX -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_CTX }
 
@@ -87,8 +100,8 @@ jobs:
             -DockerFileName   $Env:IN_DF `
             -DockerImageName  $Env:IN_IMG `
             -RegistryUrl      $Env:IN_REG `
-            -RegistryUsername '${{ secrets.RegistryUsername }}' `
-            -RegistryPassword '${{ secrets.RegistryPassword }}' `
+            -RegistryUsername '${{ github.actor }}' `           # ← GITHUB_TOKEN auth
+            -RegistryPassword '${{ secrets.GITHUB_TOKEN }}' `   # ← GITHUB_TOKEN auth
             -ImageOrg         '${{ github.repository_owner }}' `
             -PushDockerImage  $Env:IN_PUSH `
             -DebugMode        $Env:IN_DBG
