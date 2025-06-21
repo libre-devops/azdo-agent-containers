@@ -100,8 +100,8 @@ jobs:
             -DockerFileName   $Env:IN_DF `
             -DockerImageName  $Env:IN_IMG `
             -RegistryUrl      $Env:IN_REG `
-            -RegistryUsername '${{ github.actor }}' `           # ← GITHUB_TOKEN auth
-            -RegistryPassword '${{ secrets.GITHUB_TOKEN }}' `   # ← GITHUB_TOKEN auth
+            -RegistryUsername '${{ github.actor }}' `         
+            -RegistryPassword '${{ secrets.GITHUB_TOKEN }}' `
             -ImageOrg         '${{ github.repository_owner }}' `
             -PushDockerImage  $Env:IN_PUSH `
             -DebugMode        $Env:IN_DBG
