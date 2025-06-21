@@ -121,6 +121,15 @@ RUN LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/r
     curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb" && \
     sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
 
+
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/keyrings/microsoft.gpg && \
+    chmod go+r /etc/apt/keyrings/microsoft.gpg && \
+    AZ_DIST=$(lsb_release -cs) && \
+    echo "Types: deb\nURIs: https://packages.microsoft.com/repos/azure-cli/\nSuites: ${AZ_DIST}\nComponents: main\nArchitectures: $(dpkg --print-architecture)\nSigned-by: /etc/apt/keyrings/microsoft.gpg" \
+    > /etc/apt/sources.list.d/azure-cli.sources && \
+    apt-get update && apt-get install -y azure-cli
+
 # Install Packer Env
 RUN git clone https://github.com/iamhsa/pkenv.git /home/${NORMAL_USER}/.pkenv && \
     PACKER_LATEST_URL=$(curl -sL https://releases.hashicorp.com/packer/index.json | jq -r '.versions[].builds[] | select(.arch=="amd64" and .os=="linux" and (.name|test("alpha|beta|rc")==false)) | .url' | sort -V | tail -1) && \

@@ -1,263 +1,128 @@
 <#
 .SYNOPSIS
-    This script automates Docker operations including building and optionally pushing a Docker image to a specified registry.
-
-.DESCRIPTION
-    'Run-Docker.ps1' is a PowerShell script designed for automating Docker tasks. It includes functionalities for building a Docker image from a specified Dockerfile and optionally pushing this image to a Docker registry. The script is flexible and allows users to specify various parameters such as the Dockerfile name, image name, container name, registry details, and working directory.
-
-.PARAMETERS
-    DockerFileName
-        The name of the Dockerfile to be used for building the Docker image. Default is 'Dockerfile'.
-
-    DockerImageName
-        The name to be assigned to the built Docker image. Default is 'example'.
-
-    RegistryUrl
-        The URL of the Docker registry where the image should be pushed. Default is 'ghcr.io'.
-
-    RegistryUsername
-        The username for the Docker registry.
-
-    RegistryPassword
-        The password for the Docker registry.
-
-    WorkingDirectory
-        The directory where the Dockerfile is located and where Docker commands will be executed.
-
-    DebugMode
-        Enables or disables debug mode. Accepts 'true' or 'false'. Default is 'false'.
-
-    PushDockerImage
-        Specifies whether to push the Docker image to the registry. Accepts 'true' or 'false'. Default is 'true'.
-
-.FUNCTIONS
-    Convert-ToBoolean
-        Converts string parameters to boolean values.
-
-    Check-DockerExists
-        Checks if Docker is installed and available in the system's PATH.
-
-    Build-DockerImage
-        Builds a Docker image using the specified Dockerfile and path.
-
-    Push-DockerImage
-        Pushes the built Docker image to the specified registry.
-
-.EXAMPLE
-    ./Run-Docker.ps1 -WorkingDirectory "$(Get-Location)/containers/ubuntu" -RegistryUsername $Env:registry_username -RegistryPassword $Env:registry_password
-
-    This example demonstrates how to run the script with a specified working directory and Docker registry credentials sourced from environment variables.
-
-.NOTES
-    Ensure Docker is installed and that the provided credentials for the Docker registry are valid. The script parameters can be adjusted according to specific requirements.
-
-    Author: Craig Thacker
-    Date: 11/12/2023
+    Build (and optionally push) a Docker image – GitHub-Actions-friendly.
 #>
 
 param (
-    [string]$DockerFileName = "Dockerfile",
-    [string]$DockerImageName = "base-images/azdo-agent-containers",
-    [string]$RegistryUrl = "ghcr.io",
-    [string]$RegistryUsername = "myusername",
-    [string]$RegistryPassword = "mypassword",
-    [string]$ImageOrg,
-    [string]$WorkingDirectory = (Get-Location).Path,
-    [string]$DebugMode = "false",
-    [string]$PushDockerImage = "true",
-    [string[]]$AdditionalTags = @("latest", (Get-Date -Format "yyyy-MM"))
+    [string]   $DockerFileName   = 'Dockerfile',
+    [string]   $DockerImageName  = 'ubuntu-base-docker-container/ubuntu-base',
+    [string]   $RegistryUrl      = 'ghcr.io',
+    [string]   $RegistryUsername,
+    [string]   $RegistryPassword,
+    [string]   $ImageOrg,
+    [string]   $WorkingDirectory = (Get-Location).Path,
+    [string]   $BuildContext     = (Get-Location).Path,
+    [string]   $DebugMode        = 'false',   # ← string on purpose (CI inputs)
+    [string]   $PushDockerImage  = 'true',
+    [string[]] $AdditionalTags   = @('latest', (Get-Date -Format 'yyyy-MM'))
 )
 
-# Function to convert string to boolean
-function Convert-ToBoolean($value)
-{
-    $valueLower = $value.ToLower()
-    if ($valueLower -eq "true")
-    {
-        return $true
+#───────────────────────────────────────────────────────────────────────────────
+# 0.  Trust PSGallery + install LibreDevOpsHelpers
+#───────────────────────────────────────────────────────────────────────────────
+try {
+    if (Get-Command Set-PSRepository -EA SilentlyContinue) {
+        if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne 'Trusted') {
+            Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -EA Stop
+        }
     }
-    elseif ($valueLower -eq "false")
-    {
-        return $false
+    elseif (Get-Command Set-PSResourceRepository -EA SilentlyContinue) {
+        Set-PSResourceRepository -Name PSGallery -Trusted -EA Stop
     }
-    else
-    {
-        Write-Error "Error: Invalid value - $value. Exiting."
-        exit 1
+    else {
+        throw 'Neither PowerShellGet nor PSResourceGet is available.'
+    }
+    Write-Host "✅ PSGallery is trusted"
+} catch {
+    Write-Error "❌ Failed to trust PSGallery: $_"; exit 1
+}
+
+if (-not (Get-Module -ListAvailable -Name LibreDevOpsHelpers)) {
+    try {
+        Install-Module LibreDevOpsHelpers -Repository PSGallery `
+            -Scope CurrentUser -Force -AllowClobber -EA Stop
+        Write-Host "✅ Installed LibreDevOpsHelpers"
+    } catch {
+        Write-Error "❌ Could not install LibreDevOpsHelpers: $_"; exit 1
     }
 }
 
-# Function to check if Docker is installed
-function Check-DockerExists
-{
-    try
-    {
-        $dockerPath = Get-Command docker -ErrorAction Stop
-        Write-Host "Success: Docker found at: $( $dockerPath.Source )" -ForegroundColor Green
-    }
-    catch
-    {
-        Write-Error "Error: Docker is not installed or not in PATH. Exiting."
-        exit 1
-    }
+Import-Module LibreDevOpsHelpers
+_LogMessage INFO "✅ LibreDevOpsHelpers loaded" -InvocationName $MyInvocation.MyCommand.Name
+
+#───────────────────────────────────────────────────────────────────────────────
+# 1.  Resolve paths & flags *before* we cd anywhere
+#───────────────────────────────────────────────────────────────────────────────
+$repoRoot = Convert-Path $WorkingDirectory   # absolute
+
+if ($BuildContext -eq 'github_workspace') { $BuildContext = $repoRoot }
+if (-not [IO.Path]::IsPathRooted($BuildContext)) {
+    $BuildContext = Join-Path $repoRoot $BuildContext
+}
+$BuildContext = (Resolve-Path $BuildContext).Path  # canonical
+
+# Dockerfile:
+if ([IO.Path]::IsPathRooted($DockerFileName) -or
+        $DockerFileName -match '[\\/]'             ) {
+    # caller supplied an explicit path (e.g. containers/ubuntu/Dockerfile)
+    $DockerfilePath = (Resolve-Path $DockerFileName).Path
+} else {
+    $DockerfilePath = (Resolve-Path (Join-Path $BuildContext $DockerFileName)).Path
 }
 
-if ($null -eq $ImageOrg)
-{
-    $ImageOrganisation = $RegistryUsername
-}
-else
-{
-    $ImageOrganisation = $ImageOrg
-}
+if (-not $ImageOrg) { $ImageOrg = $RegistryUsername }
+$DockerImageName = "{0}/{1}/{2}" -f $RegistryUrl, $ImageOrg, $DockerImageName
 
-$DockerImageName = "${RegistryUrl}/${ImageOrganisation}/${DockerImageName}"
+$DebugMode       = ConvertTo-Boolean $DebugMode
+$PushDockerImage = ConvertTo-Boolean $PushDockerImage
+if ($DebugMode) { $DebugPreference = 'Continue' }
 
-function Build-DockerImage
-{
-    param (
-        [string]$Path,
-        [string]$DockerFile
+#───────────────────────────────────────────────────────────────────────────────
+# 2.  Build helpers (only Build-DockerImage changed)
+#───────────────────────────────────────────────────────────────────────────────
+function Build-DockerImage {
+    [CmdletBinding()] param(
+        [Parameter(Mandatory)][string] $DockerfilePath,
+        [string] $ContextPath = '.',
+        [Parameter(Mandatory)][string] $ImageName
     )
 
-    $filePath = Join-Path -Path $Path -ChildPath $DockerFile
+    Write-Host "⏳ Building '$ImageName' from Dockerfile: $DockerfilePath"
+    Write-Host "    context: $ContextPath"
 
-    # Check if Dockerfile exists at the specified path
-    if (-not(Test-Path -Path $filePath))
-    {
-        Write-Error "Error: Dockerfile not found at $filePath. Exiting."
-        return $false
+    docker build `
+        -f $DockerfilePath `
+        -t $ImageName `
+        $ContextPath | Out-Host
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "docker build failed (exit $LASTEXITCODE)"; return $false
     }
+    return $true
+}
 
-    try
-    {
-        Write-Host "Info: Building Docker image $DockerImageName from $filePath" -ForegroundColor Green
-        if ($IsWindows)
-        {
-            docker build -t $DockerImageName -f $filePath $Path | Out-Host
-        }
-        else
-        {
-            docker build --squash -t $DockerImageName -f $filePath $Path | Out-Host
-        }
+#───────────────────────────────────────────────────────────────────────────────
+# 3.  Build / Tag / Push
+#───────────────────────────────────────────────────────────────────────────────
+Assert-DockerExists
 
+$built = Build-DockerImage `
+           -DockerfilePath $DockerfilePath `
+           -ContextPath    $BuildContext `
+           -ImageName      $DockerImageName
+if (-not $built) { Write-Error '❌ docker build failed'; exit 1 }
 
-        if ($LASTEXITCODE -eq 0)
-        {
-            return $true
-        }
-        else
-        {
-            Write-Error "Error: Docker build failed with exit code $LASTEXITCODE"
-            return $false
-        }
-    }
-    catch
-    {
-        Write-Error "Error: Docker build encountered an exception"
-        return $false
+foreach ($tag in $AdditionalTags) {
+    $full = '{0}:{1}' -f $DockerImageName, $tag
+    _LogMessage INFO "🏷  Tagging: $full" -InvocationName $MyInvocation.MyCommand.Name
+    docker tag $DockerImageName $full
+}
+
+if ($PushDockerImage) {
+    $tags = $AdditionalTags | ForEach-Object { '{0}:{1}' -f $DockerImageName, $_ }
+    if (-not (Push-DockerImage -FullTagNames $tags)) {
+        Write-Error '❌ docker push failed'; exit 1
     }
 }
 
-function Push-DockerImage
-{
-    param (
-        [string[]]$FullTagNames
-    )
-
-    try
-    {
-        Write-Host "Info: Logging into Docker registry $RegistryUrl" -ForegroundColor Green
-        $RegistryPassword | docker login $RegistryUrl -u $RegistryUsername --password-stdin
-
-        if ($LASTEXITCODE -eq 0)
-        {
-            foreach ($tagName in $FullTagNames)
-            {
-                Write-Host "Info: Pushing Docker image $tagName to registry" -ForegroundColor Green
-                docker push $tagName | Out-Host
-                if ($LASTEXITCODE -eq 0)
-                {
-                    Write-Host "Success: Docker image $tagName pushed successfully." -ForegroundColor Green
-                }
-                else
-                {
-                    Write-Error "Error: Docker push failed for tag $tagName with exit code $LASTEXITCODE"
-                    # Depending on your preference, you might choose to stop trying to push additional tags after the first failure
-                    # return $false
-                }
-            }
-            # Assuming all tags are pushed successfully if we reach this point
-            return $true
-        }
-        else
-        {
-            Write-Error "Error: Docker login failed with exit code $LASTEXITCODE"
-            return $false
-        }
-    }
-    catch
-    {
-        Write-Error "Error: An exception occurred during Docker push"
-        return $false
-    }
-    finally
-    {
-        Write-Host "Info: Logging out of Docker registry $RegistryUrl" -ForegroundColor Green
-        docker logout $RegistryUrl
-    }
-}
-
-
-# Convert string parameters to boolean
-$DebugMode = Convert-ToBoolean $DebugMode
-$PushDockerImage = Convert-ToBoolean $PushDockerImage
-
-# Enable debug mode if DebugMode is set to $true
-if ($DebugMode)
-{
-    $DebugPreference = "Continue"
-}
-
-# Diagnostic output
-Write-Debug "DockerFileName: $DockerFileName"
-Write-Debug "DockerImageName: $DockerImageName"
-Write-Debug "DebugMode: $DebugMode"
-
-# Checking prerequisites
-Check-DockerExists
-
-# Execution flow
-$buildSuccess = Build-DockerImage -Path $WorkingDirectory -DockerFile $DockerFileName
-
-if ($buildSuccess)
-{
-    Write-Host "Docker build complete." -ForegroundColor Green
-    foreach ($tag in $AdditionalTags)
-    {
-        $fullTagName = "${DockerImageName}:$tag"
-        Write-Host "Info: Tagging Docker image as $fullTagName" -ForegroundColor Green
-        docker tag $DockerImageName $fullTagName
-    }
-    if ($PushDockerImage -eq $true)
-    {
-        $fullTagNames = @()
-        foreach ($tag in $AdditionalTags)
-        {
-            $fullTagNames += "${DockerImageName}:$tag"
-        }
-        Push-DockerImage -FullTagNames $fullTagNames
-    }
-
-    else
-    {
-        Write-Host "Docker image push failed." -ForegroundColor Red
-        exit 1
-    }
-}
-
-else
-{
-    Write-Host "Docker build failed." -ForegroundColor Red
-    exit 1
-}
+_LogMessage INFO '✅ All done.' -InvocationName $MyInvocation.MyCommand.Name
