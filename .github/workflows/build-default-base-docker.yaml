@@ -2,8 +2,15 @@ name: 'Run Docker - Default'
 
 # Allow run manually
 on:
+  # 1) build automatically when *any* Dockerfile is pushed to main
+  push:
+    branches: [ main ]
+    paths:    [ '**/*Dockerfile' ]
+
+  # 2) build automatically at 00:00 UTC on the 1-st of every month
   schedule:
-    - cron: '0 0 1 * *'  # This will run at 00:00 on the 1st of every month
+    - cron: '0 0 1 * *'
+
   workflow_dispatch:
     inputs:
       working_directory:

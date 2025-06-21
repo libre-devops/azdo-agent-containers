@@ -1,106 +1,120 @@
-$AZP_DIRECTORY = $Env:AZP_DIRECTORY
+<#
+  Azure DevOps self-hosted agent bootstrapper (Windows, PowerShell)
+  ─────────────────────────────────────────────────────────────────
+  • Requires: PowerShell 5.1 + (or pwsh 7 +), .NET 4.7+, Expand-Archive
+  • Env vars honoured:
+      AZP_URL            – organisation URL  (e.g. https://dev.azure.com/myorg)   [required]
+      AZP_TOKEN | AZP_TOKEN_FILE                                                 [required]
+      AZP_POOL           – agent-pool name                                       [default: Default]
+      AZP_WORK           – work folder                                           [default: _work]
+      AZP_AGENT_VERSION  – pin an exact version (skip “latest” lookup)
+      TARGETARCH         – win-x64 | win-arm64 | win-x86                         [auto-detected]
+      AZP_DIRECTORY      – base folder for agent files                           [default: C:\azp]
+#>
 
-function Print-Header($header)
-{
-    Write-Host "`n${header}`n" -ForegroundColor Cyan
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+###############################################################################
+# 0. Helper
+###############################################################################
+function Write-Header {
+    param([string]$Text)
+    Write-Host "`n$Text`n" -ForegroundColor Cyan
 }
 
-if (-not(Test-Path Env:AZP_URL))
-{
-    Write-Error "error: missing AZP_URL environment variable"
-    exit 1
+###############################################################################
+# 1. Mandatory env-vars
+###############################################################################
+if (-not $Env:AZP_URL) {
+    Write-Error 'error: missing AZP_URL environment variable'; exit 1
 }
 
-if (-not(Test-Path Env:AZP_TOKEN_FILE))
-{
-    if (-not(Test-Path Env:AZP_TOKEN))
-    {
-        Write-Error "error: missing AZP_TOKEN environment variable"
-        exit 1
+if (-not $Env:AZP_TOKEN_FILE) {
+    if (-not $Env:AZP_TOKEN) {
+        Write-Error 'error: missing AZP_TOKEN environment variable'; exit 1
     }
-
-    $Env:AZP_TOKEN_FILE = "${AZP_DIRECTORY}\.token"
-    $Env:AZP_TOKEN | Out-File -FilePath $Env:AZP_TOKEN_FILE
+    $Env:AZP_TOKEN_FILE = Join-Path ($Env:AZP_DIRECTORY ?? 'C:\azp') '.token'
+    $Env:AZP_TOKEN | Out-File -Encoding ascii -NoNewline $Env:AZP_TOKEN_FILE
 }
+Remove-Item Env:AZP_TOKEN -ErrorAction SilentlyContinue   # don’t leak the token further
 
-$AZP_AGENT_NAME = "azdo-agent-win-srcr2022-$( Get-Date -Format 'ddMMyyyy' )-$( Get-Random -Maximum 9999999999 )"
+###############################################################################
+# 2. Paths & architecture
+###############################################################################
+$BaseDir     = $Env:AZP_DIRECTORY    ?? 'C:\azp'
+$AgentRoot   = Join-Path $BaseDir    'agent'
+$WorkFolder  = $Env:AZP_WORK         ?? '_work'
+$AgentPool   = $Env:AZP_POOL         ?? 'Default'
 
-Remove-Item Env:AZP_TOKEN
+if (-not (Test-Path $AgentRoot)) { New-Item $AgentRoot -ItemType Directory | Out-Null }
 
-if ((Test-Path Env:AZP_WORK) -and -not(Test-Path $Env:AZP_WORK))
-{
-    New-Item $Env:AZP_WORK -ItemType directory | Out-Null
-}
-
-New-Item "${AZP_DIRECTORY}\agent" -ItemType directory | Out-Null
-
-# Let the agent ignore the token env variables
-$Env:VSO_AGENT_IGNORE = "AZP_TOKEN,AZP_TOKEN_FILE"
-
-# Check for required tools
-if (-not(Get-Command jq -ErrorAction SilentlyContinue) -or -not(Get-Command curl -ErrorAction SilentlyContinue) -or -not(Get-Command sed -ErrorAction SilentlyContinue))
-{
-    Write-Error "You do not have the needed packages (jq, curl, sed) to run the script, please install them"
-    exit 1
-}
-
-
-Set-Location agent
-
-Print-Header "1. Determining matching Azure Pipelines agent..."
-
-$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$( Get-Content ${Env:AZP_TOKEN_FILE} )"))
-$package = Invoke-RestMethod -Headers @{ Authorization = ("Basic $base64AuthInfo") } "$( ${Env:AZP_URL} )/_apis/distributedtask/packages/agent?platform=win-x64&`$top=1"
-$packageUrl = $package[0].Value.downloadUrl
-
-Write-Host $packageUrl
-
-Print-Header "2. Downloading and installing Azure Pipelines agent..."
-$CurrentWd = $( Get-Location ).Path
-$AgentPath = Join-Path -Path $CurrentWd -ChildPath "agent.zip"
-$wc = New-Object System.Net.WebClient
-$wc.DownloadFile($packageUrl, $AgentPath)
-
-Expand-Archive -Path $AgentPath -DestinationPath "C:\agent"
-$configCmdPath = Join-Path -Path "C:\agent" -ChildPath "config.cmd"
-$runCmdPath = Join-Path -Path "C:\agent" -ChildPath "run.cmd"
-
-try
-{
-    Print-Header "3. Configuring Azure Pipelines agent..."
-
-    pwsh -Command $configCmdPath --unattended `
-    --agent $AZP_AGENT_NAME `
-    --url "$( ${Env:AZP_URL} )" `
-    --auth PAT `
-    --token "$( Get-Content ${Env:AZP_TOKEN_FILE} )" `
-    --pool "$( if (Test-Path Env:AZP_POOL)
-    {
-        ${Env:AZP_POOL}
+if (-not $Env:TARGETARCH) {
+    $Env:TARGETARCH = switch ((Get-CimInstance Win32_OperatingSystem).OSArchitecture) {
+        {$_ -match '64'} { 'win-x64' }
+        {$_ -match 'ARM64'} { 'win-arm64' }
+        default { 'win-x86' }
     }
-    else
-    {
-        'Default'
-    } )" `
-    --work "$( if (Test-Path Env:AZP_WORK)
-    {
-        ${Env:AZP_WORK}
-    }
-    else
-    {
-        '_work'
-    } )" `
-    --replace
-
-    Print-Header "4. Running Azure Pipelines agent..."
-
-    pwsh -Command $runCmdPath
 }
-finally
-{
-    Print-Header "Cleanup. Removing Azure Pipelines agent..."
 
-    pwsh -Command $configCmdPath remove --unattended `
-    --auth PAT `
-    --token "$( Get-Content ${Env:AZP_TOKEN_FILE} )"
+###############################################################################
+# 3. Resolve agent version
+###############################################################################
+if (-not $Env:AZP_AGENT_VERSION) {
+    Write-Header 'Resolving latest stable agent version…'
+    $latest = Invoke-RestMethod https://api.github.com/repos/microsoft/azure-pipelines-agent/releases |
+            Where-Object { -not $_.prerelease } |
+            Select-Object -First 1
+    $Env:AZP_AGENT_VERSION = $latest.tag_name.TrimStart('v')
+    if (-not $Env:AZP_AGENT_VERSION) {
+        Write-Error 'error: could not determine agent version from GitHub'; exit 1
+    }
+}
+
+###############################################################################
+# 4. Download & extract
+###############################################################################
+$zipName      = "vsts-agent-$($Env:TARGETARCH)-$($Env:AZP_AGENT_VERSION).zip"
+$downloadUri  = "https://download.agent.dev.azure.com/agent/$($Env:AZP_AGENT_VERSION)/$zipName"
+$zipPath      = Join-Path $AgentRoot $zipName
+
+Write-Header "Downloading agent $($Env:AZP_AGENT_VERSION) ($($Env:TARGETARCH))…"
+Invoke-WebRequest -Uri $downloadUri -OutFile $zipPath
+
+Write-Header 'Extracting…'
+Expand-Archive -Path $zipPath -DestinationPath $AgentRoot -Force
+Remove-Item $zipPath
+
+###############################################################################
+# 5. Configure
+###############################################################################
+$agentName = "azdo-agent-$(hostname)-$(Get-Date -Format 'ddMMyyyy')-$(Get-Random -Max 999999)"
+
+$Env:VSO_AGENT_IGNORE = 'AZP_TOKEN,AZP_TOKEN_FILE'
+Set-Location $AgentRoot
+
+Write-Header 'Configuring agent…'
+& .\config.cmd --unattended `
+    --agent  $agentName `
+    --url    $Env:AZP_URL `
+    --auth   PAT `
+    --token  (Get-Content $Env:AZP_TOKEN_FILE) `
+    --pool   $AgentPool `
+    --work   $WorkFolder `
+    --replace `
+    --acceptTeeEula
+
+###############################################################################
+# 6. Run (and ensure cleanup)
+###############################################################################
+try {
+    Write-Header 'Running agent…'
+    & .\run.cmd
+}
+finally {
+    Write-Header 'Cleanup – removing agent…'
+    & .\config.cmd remove --unattended `
+        --auth PAT `
+        --token (Get-Content $Env:AZP_TOKEN_FILE)
 }
