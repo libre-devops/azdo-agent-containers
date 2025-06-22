@@ -115,8 +115,6 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
     pwsh -Command Install-Module -Name Pester -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
     pwsh -Command Install-Module -Name LibreDevOpsHelpers -Force -AllowClobber -Scope AllUsers -Repository PSGallery
 
-
-
 RUN LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest|jq -r .tag_name) && \
     curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb" && \
     sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
@@ -144,8 +142,8 @@ RUN chown -R ${NORMAL_USER}:${NORMAL_USER} /opt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY start.sh /home/${NORMAL_USER}/start.sh
-COPY env.sh /home/${NORMAL_USER}/env.sh
+COPY containers/ubuntu/start.sh  /home/${NORMAL_USER}/start.sh
+COPY containers/ubuntu/env.sh    /home/${NORMAL_USER}/env.sh
 RUN chmod +x /home/${NORMAL_USER}/start.sh && \
     chmod +x /home/${NORMAL_USER}/env.sh && \
     chown -R "${NORMAL_USER}:${NORMAL_USER}" /home/${NORMAL_USER}

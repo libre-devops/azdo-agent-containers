@@ -79,6 +79,6 @@ SHELL ["pwsh", "-Command"]
 
 # Changed C:/azp to use the AZP_DIRECTORY for the work directory
 WORKDIR ${AZP_DIRECTORY}
-COPY start.ps1 ${AZP_DIRECTORY}/start.ps1
+COPY containers/windows-servercore2025/start.ps1  ${AZP_DIRECTORY}/start.ps1
 
 CMD ["pwsh", "-file",  "start.ps1"]

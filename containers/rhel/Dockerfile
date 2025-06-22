@@ -151,8 +151,8 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers /var/
 
 ENV _CONTAINERS_USERNS_CONFIGURED=""
 
-COPY start.sh /home/${NORMAL_USER}/start.sh
-COPY env.sh /home/${NORMAL_USER}/env.sh
+COPY containers/rhel/start.sh  /home/${NORMAL_USER}/start.sh
+COPY containers/rhel/env.sh    /home/${NORMAL_USER}/env.sh
 RUN chmod +x /home/${NORMAL_USER}/start.sh && \
     chmod +x /home/${NORMAL_USER}/env.sh && \
     chown -R "${NORMAL_USER}:${NORMAL_USER}" /home/${NORMAL_USER}

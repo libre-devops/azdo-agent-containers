@@ -114,8 +114,8 @@ RUN curl -sL $(curl -sL https://api.github.com/repos/aquasecurity/trivy/releases
     chmod +x /tmp/trivy && \
     mv /tmp/trivy /usr/local/bin/
 
-COPY start.sh /home/${NORMAL_USER}/start.sh
-COPY env.sh /home/${NORMAL_USER}/env.sh
+COPY containers/alpine/start.sh  /home/${NORMAL_USER}/start.sh
+COPY containers/alpine/env.sh    /home/${NORMAL_USER}/env.sh
 RUN chmod +x /home/${NORMAL_USER}/start.sh && \
     chmod +x /home/${NORMAL_USER}/env.sh && \
     chown -R "${NORMAL_USER}:${NORMAL_USER}" /home/${NORMAL_USER}
