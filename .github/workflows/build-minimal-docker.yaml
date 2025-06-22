@@ -67,6 +67,7 @@ jobs:
       IN_ORG:  ${{ github.event.inputs.image_org          || 'libre-devops' }}      # ← NEW
       IN_DBG:  ${{ github.event.inputs.enable_debug_mode  || 'true' }}
       IN_PUSH: ${{ github.event.inputs.push_docker_image  || 'true'  }}
+      DOCKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -84,7 +85,7 @@ jobs:
             -DockerImageName  $Env:IN_IMG `
             -RegistryUrl      'ghcr.io' `
             -RegistryUsername '${{ secrets.RegistryUsername }}' `
-            -RegistryPassword '${{ secrets.RegistryPassword }}' `
+            -RegistryPassword '$Env:DOCKER_TOKEN' `
             -ImageOrg         $Env:IN_ORG `
             -PushDockerImage  $Env:IN_PUSH `
             -DebugMode        $Env:IN_DBG
