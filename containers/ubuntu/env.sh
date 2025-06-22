@@ -1,45 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+#####
 varCheckList=(
-    'LANG'
-    'JAVA_HOME'
-    'ANT_HOME'
-    'M2_HOME'
-    'ANDROID_HOME'
-    'GRADLE_HOME'
-    'NVM_BIN'
-    'NVM_PATH'
-    'VSTS_HTTP_PROXY'
-    'VSTS_HTTP_PROXY_USERNAME'
-    'VSTS_HTTP_PROXY_PASSWORD'
-    'LD_LIBRARY_PATH'
-    'PERL5LIB'
-    'AGENT_TOOLSDIRECTORY'
-    )
+  LANG JAVA_HOME ANT_HOME M2_HOME ANDROID_HOME GRADLE_HOME
+  NVM_BIN NVM_PATH VSTS_HTTP_PROXY VSTS_HTTP_PROXY_USERNAME
+  VSTS_HTTP_PROXY_PASSWORD LD_LIBRARY_PATH PERL5LIB AGENT_TOOLSDIRECTORY
+)
 
-envContents=""
+envFile=".env"
+[[ -f $envFile ]] || : >"$envFile"          # create if missing
+envContents=$(<"$envFile")
 
-if [ -f ".env" ]; then
-    envContents=$(cat .env)
-else
-    touch .env
-fi
+writeVar() {
+  local key="$1" keyEq="${1}="
+  [[ $envContents == *"$keyEq"* ]] && return        # already in .env
 
-function writeVar()
-{
-    local checkVar="$1"
-    local checkDelim="${1}="
-    if test "${envContents#*$checkDelim}" = "$envContents"
-    then
-        if [  -z "${!checkVar}" ]; then
-            echo "${checkVar}=${!checkVar}">>.env
-        fi
-    fi
+  local val="${!key-}"                              # safe even if unset
+  [[ -n $val ]] && printf '%s=%s\n' "$key" "$val" >>"$envFile"
 }
 
-echo "$PATH">.path
+# record current PATH separately
+printf '%s\n' "$PATH" > .path
 
-for var_name in "${varCheckList[@]}"
-do
-    writeVar "${var_name}"
+for v in "${varCheckList[@]}"; do
+  writeVar "$v"
 done
