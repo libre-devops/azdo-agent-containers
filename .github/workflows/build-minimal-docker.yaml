@@ -83,7 +83,7 @@ jobs:
             -DockerFileName   $Env:IN_DF `
             -DockerImageName  $Env:IN_IMG `
             -RegistryUrl      'ghcr.io' `
-            -RegistryUsername '${{ secrets.RegistryUsername' `
+            -RegistryUsername '${{ secrets.RegistryUsername }}' `
             -RegistryPassword '${{ secrets.GITHUB_TOKEN }}' `
             -ImageOrg         $Env:IN_ORG `
             -PushDockerImage  $Env:IN_PUSH `
