@@ -138,12 +138,14 @@ RUN LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/r
     sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
 
 RUN mkdir -p /etc/apt/keyrings && \
-    curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/keyrings/microsoft.gpg && \
+    curl -sLS https://packages.microsoft.com/keys/microsoft.asc \
+      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg && \
     chmod go+r /etc/apt/keyrings/microsoft.gpg && \
     AZ_DIST=$(lsb_release -cs) && \
-    echo "Types: deb\nURIs: https://packages.microsoft.com/repos/azure-cli/\nSuites: ${AZ_DIST}\nComponents: main\nArchitectures: $(dpkg --print-architecture)\nSigned-by: /etc/apt/keyrings/microsoft.gpg" \
-    > /etc/apt/sources.list.d/azure-cli.sources && \
-    apt-get update && apt-get install -y azure-cli
+    printf "Types: deb\nURIs: https://packages.microsoft.com/repos/azure-cli/\nSuites: %s\nComponents: main\nArchitectures: $(dpkg --print-architecture)\nSigned-By: /etc/apt/keyrings/microsoft.gpg\n" "$AZ_DIST" \
+      > /etc/apt/sources.list.d/azure-cli.sources && \
+    apt-get update && \
+    apt-get install -y azure-cli
 
 # Install Packer Env
 RUN git clone https://github.com/iamhsa/pkenv.git /home/${NORMAL_USER}/.pkenv && \
