@@ -96,7 +96,7 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/${NORMAL_USER}/.pyenv && 
     eval "$(pyenv init --path)" && \
     pyenvLatestStable=$(pyenv install --list | grep -v - | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | tail -1) && \
     pyenv install $pyenvLatestStable && \
-    pyenv global $pyen vLatestStable && \
+    pyenv global $pyenvLatestStable && \
     pip install --upgrade pip && \
     pip install pipx
 
