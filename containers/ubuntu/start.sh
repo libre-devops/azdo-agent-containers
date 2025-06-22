@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -e
 
 ###############################################################################
 # 0.  Unified _logger  (green INFO • yellow WARN • red FAIL)
@@ -73,15 +73,15 @@ if [[ -z ${AZP_AGENT_VERSION:-} ]]; then
   [[ -z $AZP_AGENT_VERSION || $AZP_AGENT_VERSION == "null" ]] \
     && _logger FAIL "could not determine agent version from GitHub"
 fi
-_logger INFO "Azure Pipelines agent   : $AZP_AGENT_VERSION"
+_logger INFO "Azure Pipelines agent: $AZP_AGENT_VERSION"
 
 ###############################################################################
 # 5.  Download & extract
 ###############################################################################
 URL="https://download.agent.dev.azure.com/agent/${AZP_AGENT_VERSION}/vsts-agent-${TARGETARCH}-${AZP_AGENT_VERSION}.tar.gz"
-_logger INFO "Downloading agent…"
+_logger INFO "Downloading agent from $URL"
 curl -sSL --progress-bar "$URL" | tar -xz
-_logger INFO "Download complete"
+_logger INFO "Download complete :)"
 
 source ./env.sh   # may set AGENT_OS etc.
 
@@ -89,6 +89,7 @@ source ./env.sh   # may set AGENT_OS etc.
 # 6.  Prepare, configure, run
 ###############################################################################
 AZP_AGENT_NAME="azdo-agent-$(hostname)-$(date +%d%m%Y)-$(tr -dc A-Za-z0-9 </dev/urandom | head -c6)"
+_logger INFO "Agent name will be: $AZP_AGENT_NAME"
 [[ -n ${AZP_WORK:-} ]] && mkdir -p "$AZP_WORK"
 
 cleanup() {
