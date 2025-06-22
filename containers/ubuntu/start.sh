@@ -60,7 +60,7 @@ if [[ -z ${TARGETARCH:-} ]]; then
     *) _logger FAIL "unsupported architecture $(uname -m)" ;;
   esac
 fi
-_logger INFO "Architecture            : $TARGETARCH"
+_logger INFO "Architecture: $TARGETARCH"
 
 ###############################################################################
 # 4.  Determine agent version
