@@ -55,6 +55,7 @@ RUN adduser -s /bin/bash -D -h /home/${NORMAL_USER} ${NORMAL_USER} && \
     libxslt-dev \
     linux-headers \
     ncurses-dev \
+    nano \
     openssl-dev \
     readline-dev \
     sqlite-dev \
