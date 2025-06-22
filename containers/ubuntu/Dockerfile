@@ -163,9 +163,6 @@ RUN pip3 install --user \
     terraform-compliance \
     pywinrm
 
-# Install Azure-CLI as seperate step for cacheing speed
-RUN pip3 install --user azure-cli
-
 # Install homebrew and gcc per recomendation as well a PHP
 RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${NORMAL_USER}/.bashrc && \
