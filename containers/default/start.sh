@@ -2,7 +2,7 @@
 set -e
 
 ###############################################################################
-# 0.  Unified _logger  (green INFO • yellow WARN • red FAIL)
+# Unified _logger  (green INFO • yellow WARN • red FAIL)
 ###############################################################################
 ESC="\033"; NC="${ESC}[0m"
 GREEN="${ESC}[1;32m"; YELLOW="${ESC}[1;33m"; RED="${ESC}[1;31m"
