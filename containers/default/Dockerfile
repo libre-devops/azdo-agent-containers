@@ -219,11 +219,11 @@ RUN chown podman:podman -R /home/${NORMAL_USER} && usermod -aG podman ${NORMAL_U
 VOLUME /home/podman/.local/share/containers
 
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/containers.conf
-ADD containers.conf /etc/containers/containers.conf
+ADD containers/default/containers.conf /etc/containers/containers.conf
 #https://raw.githubusercontent.com/containers/libpod/master/contrib/podmanimage/stable/podman-containers.conf
-ADD podman-containers.conf /home/podman/.config/containers/containers.conf
-ADD storage.conf /home/podman/.config/containers/storage.conf
-ADD storage.conf /etc/containers/storage.conf
+ADD containers/default/podman-containers.conf /home/podman/.config/containers/containers.conf
+ADD containers/default/storage.conf /home/podman/.config/containers/storage.conf
+ADD containers/default/storage.conf /etc/containers/storage.conf
 
 #chmod containers.conf and adjust storage.conf to enable Fuse storage.
 RUN chmod 644 /etc/containers/containers.conf; sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' -e 's|^mountopt[[:space:]]*=.*$|mountopt = "nodev,fsync=0"|g' /etc/containers/storage.conf
