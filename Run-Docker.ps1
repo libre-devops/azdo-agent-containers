@@ -120,7 +120,7 @@ foreach ($tag in $AdditionalTags) {
 
 if ($PushDockerImage) {
     $tags = $AdditionalTags | ForEach-Object { '{0}:{1}' -f $DockerImageName, $_ }
-    if (-not (Push-DockerImage -FullTagNames $tags)) {
+    if (-not (Push-DockerImage -FullTagNames $tags -RegistryUrl $RegistryUrl -RegistryUsername $RegistryUsername -RegistryPassword $RegistryPassword)) {
         Write-Error '❌ docker push failed'; exit 1
     }
 }
