@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2022
 LABEL org.opencontainers.image.title=windows-servercore2022
 LABEL org.opencontainers.image.source=https://github.com/libre-devops/azdo-agent-containers
 
-COPY tls-fix.ps1 /tls-fix.ps1
+COPY containers/windows-servercore2022/tls-fix.ps1 /tls-fix.ps1
 
 ARG ACCEPT_EULA=y
 ENV ACCEPT_EULA ${ACCEPT_EULA}
