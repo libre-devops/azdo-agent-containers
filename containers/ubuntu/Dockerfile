@@ -94,7 +94,8 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/${NORMAL_USER}/.pyenv && 
     pyenvLatestStable=$(pyenv install --list | grep -v - | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | tail -1) && \
     pyenv install $pyenvLatestStable && \
     pyenv global $pyenvLatestStable && \
-    pip install --upgrade pip
+    pip install --upgrade pip && \
+    pip install pipx
 
 # Install PowerShell
 RUN curl -sSLO https://packages.microsoft.com/config/ubuntu/$(grep -oP '(?<=^DISTRIB_RELEASE=).+' /etc/lsb-release | tr -d '"')/packages-microsoft-prod.deb && \
@@ -113,7 +114,9 @@ RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
     pwsh -Command Install-Module -Name Az -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
     pwsh -Command Install-Module -Name Microsoft.Graph -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
     pwsh -Command Install-Module -Name Pester -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
-    pwsh -Command Install-Module -Name LibreDevOpsHelpers -Force -AllowClobber -Scope AllUsers -Repository PSGallery
+    pwsh -Command Install-Module -Name LibreDevOpsHelpers -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
+    pwsh -Command Install-Module Microsoft.PowerShell.PSResourceGet -AllowClobber -Scope AllUsers -Repository PSGallery
+
 
 RUN LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest|jq -r .tag_name) && \
     curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb" && \
@@ -171,7 +174,6 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew install gcc && \
     brew install trivy && \
-    brew install pipx && \
     brew install checkov && \
     brew tap azure/functions && \
     brew install azure-functions-core-tools@4

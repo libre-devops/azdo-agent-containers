@@ -96,15 +96,18 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/${NORMAL_USER}/.pyenv && 
     eval "$(pyenv init --path)" && \
     pyenvLatestStable=$(pyenv install --list | grep -v - | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | tail -1) && \
     pyenv install $pyenvLatestStable && \
-    pyenv global $pyenvLatestStable && \
-    pip install --upgrade pip
+    pyenv global $pyen vLatestStable && \
+    pip install --upgrade pip && \
+    pip install pipx
 
 #Install Azure Modules for Powershell - This can take a while, so setting as final step to shorten potential rebuilds
 RUN pwsh -Command Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted && \
     pwsh -Command Install-Module -Name Az -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
     pwsh -Command Install-Module -Name Microsoft.Graph -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
     pwsh -Command Install-Module -Name Pester -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
-    pwsh -Command Install-Module -Name LibreDevOpsHelpers -Force -AllowClobber -Scope AllUsers -Repository PSGallery
+    pwsh -Command Install-Module -Name LibreDevOpsHelpers -Force -AllowClobber -Scope AllUsers -Repository PSGallery && \
+    pwsh -Command Install-Module Microsoft.PowerShell.PSResourceGet -AllowClobber -Scope AllUsers -Repository PSGallery
+
 
 
 RUN LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest|jq -r .tag_name) && \

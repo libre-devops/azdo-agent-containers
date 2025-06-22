@@ -1,0 +1,68 @@
+name: Run Docker – Windows Server Core 2022
+################################################################################
+# TRIGGERS
+################################################################################
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'containers/windows-servercore2022/**Dockerfile'
+      - 'containers/windows-servercore2022/**start.ps1'
+      - 'containers/windows-servercore2022/**env.ps1'
+
+  schedule:
+    - cron: '0 0 1 * *'
+
+  workflow_dispatch:
+    inputs:
+      working_directory:
+        type: string
+        default: 'containers/windows-servercore2022'
+
+      build_context:
+        type: string
+        default: 'github_workspace'
+
+      docker_file_name:
+        type: string
+        default: 'containers/windows-servercore2022/Dockerfile'
+
+      docker_image_name:
+        type: string
+        default: 'azdo-agent-containers/windows-servercore2022'
+
+      image_org:
+        type: string
+        default: 'libre-devops'
+
+      enable_debug_mode:
+        type: boolean
+        default: true
+
+      push_docker_image:
+        type: string
+        default: 'true'
+
+################################################################################
+# JOBS
+################################################################################
+jobs:
+  run-script:
+    name: Build & (optionally) push image
+    runs-on: windows-latest         # ← Windows host for Windows-based image
+
+    permissions:
+      contents: read
+      packages: write
+
+    defaults:
+      run:
+        shell: pwsh
+
+    ########################################
+    # 1.  Inputs → environment variables   #
+    ########################################
+    env:
+      IN_WD:   ${{ github.event.inputs.working_directory  || 'containers/windows-servercore2022' }}
+      IN_CTX:  ${{ github.event.inputs.build_context      || 'github_workspace' }}
+      IN_DF:   ${{ git_
