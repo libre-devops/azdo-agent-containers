@@ -145,7 +145,6 @@ RUN mkdir -p /etc/apt/keyrings && \
     > /etc/apt/sources.list.d/azure-cli.sources && \
     apt-get update && apt-get install -y azure-cli
 
-
 # Install Packer Env
 RUN git clone https://github.com/iamhsa/pkenv.git /home/${NORMAL_USER}/.pkenv && \
     PACKER_LATEST_URL=$(curl -sL https://releases.hashicorp.com/packer/index.json | jq -r '.versions[].builds[] | select(.arch=="amd64" and .os=="linux" and (.name|test("alpha|beta|rc")==false)) | .url' | sort -V | tail -1) && \
