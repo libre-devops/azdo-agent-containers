@@ -1,28 +1,90 @@
-# … top of workflow unchanged …
+name: Run Docker – Minimal
+################################################################################
+# TRIGGERS
+################################################################################
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'containers/minimal/**Dockerfile'
+      - 'containers/minimal/**start.sh'
+      - 'containers/minimal/**env.sh'
 
-steps:
-  - uses: actions/checkout@v3
+  schedule:
+    - cron: '0 0 1 * *'
 
-  - name: Build (and optionally push)
-    run: |
-      $repoRoot   = '${{ github.workspace }}'
-      $workingDir = if ($Env:IN_WD  -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_WD  }
-      $context    = if ($Env:IN_CTX -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_CTX }
+  workflow_dispatch:
+    inputs:
+      working_directory:
+        type: string
+        default: 'containers/minimal'
 
-      # -------------------------------
-      # Call Run-Docker.ps1 via splat
-      # -------------------------------
-      $args = @{
-        WorkingDirectory = $workingDir
-        BuildContext     = $context
-        DockerFileName   = $Env:IN_DF
-        DockerImageName  = $Env:IN_IMG
-        RegistryUrl      = 'ghcr.io'
-        RegistryUsername = '${{ github.actor }}'
-        RegistryPassword = '${{ secrets.GITHUB_TOKEN }}'
-        ImageOrg         = $Env:IN_ORG
-        PushDockerImage  = $Env:IN_PUSH
-        DebugMode        = $Env:IN_DBG
-      }
+      build_context:
+        type: string
+        default: 'github_workspace'
 
-      ./Run-Docker.ps1 @args
+      docker_file_name:
+        type: string
+        default: 'containers/minimal/Dockerfile'
+
+      docker_image_name:
+        type: string
+        default: 'azdo-agent-containers/minimal'
+
+      image_org:                     # ← NEW
+        type: string
+        default: 'libre-devops'
+
+      enable_debug_mode:
+        type: boolean
+        default: true
+
+      push_docker_image:
+        type: string
+        default: 'true'
+
+################################################################################
+# JOBS
+################################################################################
+jobs:
+  run-script:
+    name: Build & (optionally) push image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    defaults:
+      run:
+        shell: pwsh
+
+    env:
+      IN_WD:   ${{ github.event.inputs.working_directory  || 'containers/minimal' }}
+      IN_CTX:  ${{ github.event.inputs.build_context      || 'github_workspace'   }}
+      IN_DF:   ${{ github.event.inputs.docker_file_name   || 'containers/minimal/Dockerfile' }}
+      IN_IMG:  ${{ github.event.inputs.docker_image_name  || 'azdo-agent-containers/minimal' }}
+      IN_ORG:  ${{ github.event.inputs.image_org          || 'libre-devops' }}      # ← NEW
+      IN_DBG:  ${{ github.event.inputs.enable_debug_mode  || 'true' }}
+      IN_PUSH: ${{ github.event.inputs.push_docker_image  || 'true'  }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build (and optionally push)
+        run: |
+          $repoRoot   = '${{ github.workspace }}'
+          $workingDir = if ($Env:IN_WD  -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_WD  }
+          $context    = if ($Env:IN_CTX -eq 'github_workspace') { $repoRoot } else { Join-Path $repoRoot $Env:IN_CTX }
+
+          ./Run-Docker.ps1 `
+            -WorkingDirectory $workingDir `
+            -BuildContext     $context `
+            -DockerFileName   $Env:IN_DF `
+            -DockerImageName  $Env:IN_IMG `
+            -RegistryUrl      'ghcr.io' `
+            -RegistryUsername '${{ secrets.RegistryUsername' `
+            -RegistryPassword '${{ secrets.GITHUB_TOKEN }}' `
+            -ImageOrg         $Env:IN_ORG `
+            -PushDockerImage  $Env:IN_PUSH `
+            -DebugMode        $Env:IN_DBG
