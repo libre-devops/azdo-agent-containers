@@ -264,11 +264,3 @@ RUN echo -en "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com
     brew install gh && \
     brew install helm && \
     brew install kubernetes-cli
-
-RUN pipx install --include-deps checkov && \
-    pipx install --include-deps pipenv && \
-    pipx install --include-deps virtualenv && \
-    pipx install --include-deps terraform-compliance && \
-    pipx install --include-deps pywinrm && \
-    pipx install --include-deps podman-compose && \
-    pipx install --include-deps ansible
