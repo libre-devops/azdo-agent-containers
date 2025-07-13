@@ -55,25 +55,22 @@ docker run -it ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest \
 -e AZP_WORK="${AZP_WORK}"
 ```
 
+
 or minimally
 
 ```shell
-docker run -it \
--e AZP_URL="${AZP_URL}" \
--e AZP_TOKEN="${AZP_TOKEN}" \
-ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest
+export AZP_URL="https://dev.azure.com/blah"
+export AZP_TOKEN="SuperSecretToken"
+docker run -it --rm -e AZP_URL="${AZP_URL}" -e AZP_TOKEN="${AZP_TOKEN}" ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest
 
 ```
 
 ## Windows
 
 ```powershell
-docker run -it `
--e AZP_URL = "${AZP_URL}" `
--e AZP_TOKEN = "${AZP_TOKEN}" `
--e AZP_POOL = "${AZP_POOL}" `
--e AZP_WORK = "${AZP_WORK}" `
-ghcr.io/libre-devops/azdo-agent-containers/windows-servercore2022:latest 
+$AZP_TOKEN = $Env:MY_PAT
+$AZP_URL = "https://dev.azure.com/biscuits"
+docker run -it --rm -e AZP_URL=$AZP_URL -e AZP_TOKEN=$AZP_TOKEN-e AZP_POOL="Default" ghcr.io/libre-devops/azdo-agent-containers/ubuntu:latest
 ```
 
 ## Podman-in-Podman
